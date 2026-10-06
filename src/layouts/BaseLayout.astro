@@ -1,6 +1,9 @@
 ---
 import SiteHeader from '../components/navigation/SiteHeader.astro';
+import FloatingWhatsApp from '../components/FloatingWhatsApp.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 import { SITE } from '../config/site';
+import { CONTACT } from '../content/contact';
 import { getHomeContent } from '../content/home';
 import { getAlternatePath } from '../i18n/routes';
 import type { Locale } from '../i18n/types';
@@ -29,6 +32,21 @@ const alternateLocale: Locale = locale === 'id' ? 'en' : 'id';
 const alternatePath = getAlternatePath(pathname, alternateLocale);
 const skipLabel = locale === 'id' ? 'Lewati ke konten utama' : 'Skip to main content';
 const ogLocale = locale === 'id' ? 'id_ID' : 'en_US';
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'LegalService',
+  name: SITE.name,
+  url: SITE.canonicalBase,
+  email: CONTACT.email,
+  telephone: CONTACT.phoneE164,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Komplek Surya Setra A3, Jl. Ters. Dr. Ir. Sutami Raya No. 16',
+    addressLocality: 'Bandung',
+    addressRegion: 'West Java',
+    addressCountry: 'ID',
+  },
+};
 ---
 
 <!doctype html>
@@ -51,6 +69,7 @@ const ogLocale = locale === 'id' ? 'id_ID' : 'en_US';
     <meta property="og:description" content={description} />
     <meta property="og:url" content={absoluteUrl} />
     {image && <meta property="og:image" content={new URL(image, SITE.canonicalBase)} />}
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)}></script>
     <title>{title}</title>
     <script is:inline>
       (() => {
@@ -71,5 +90,7 @@ const ogLocale = locale === 'id' ? 'id_ID' : 'en_US';
     <a class="skip-link" href="#main-content">{skipLabel}</a>
     <SiteHeader locale={locale} pathname={pathname} navigation={content.navigation} />
     <slot />
+    <SiteFooter locale={locale} content={content.footer} />
+    <FloatingWhatsApp locale={locale} />
   </body>
 </html>

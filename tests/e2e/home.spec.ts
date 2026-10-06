@@ -84,3 +84,57 @@ test.describe('clients portfolio', () => {
     expect(await tile.evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThan(100);
   });
 });
+
+test.describe('contact, metadata, and preview safeguards', () => {
+  test('renders every direct contact action without a form', async ({ page }) => {
+    await page.goto('/en/#contact');
+    const contact = page.locator('#contact');
+
+    await expect(contact.getByRole('link', { name: /wnp@wijayapartners\.com/ })).toHaveAttribute(
+      'href',
+      'mailto:wnp@wijayapartners.com',
+    );
+    await expect(contact.getByRole('link', { name: '0898-6000-822', exact: true })).toHaveAttribute(
+      'href',
+      'tel:+628986000822',
+    );
+    await expect(contact.getByRole('link', { name: /WhatsApp/ })).toHaveAttribute(
+      'href',
+      'https://wa.me/628986000822',
+    );
+    await expect(contact).toContainText('09:00–17:00');
+    await expect(contact).toContainText('Komplek Surya Setra A3');
+    const map = contact.getByRole('link', { name: 'Open directions' });
+    await expect(map).toHaveAttribute('target', '_blank');
+    await expect(map).toHaveAttribute('rel', /noopener/);
+    await expect(page.locator('[data-floating-whatsapp]')).toHaveAttribute(
+      'href',
+      'https://wa.me/628986000822',
+    );
+    await expect(contact.locator('form')).toHaveCount(0);
+  });
+
+  test('publishes localized metadata while keeping the concept preview noindex', async ({ page }) => {
+    await page.goto('/en/');
+
+    await expect(page).toHaveTitle('Wijaya And Partners | Bandung Law Firm');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /concept preview/i);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://wijaya-partners-concept-preview.netlify.app/en/',
+    );
+    await expect(page.locator('link[rel="alternate"][hreflang="id"]')).toHaveAttribute(
+      'href',
+      'https://wijaya-partners-concept-preview.netlify.app/id/',
+    );
+    expect(await page.locator('script[type="application/ld+json"]').textContent()).toContain('LegalService');
+  });
+
+  test('keeps the preview label and legal disclaimer visible', async ({ page }) => {
+    await page.goto('/id/');
+
+    await expect(page.getByText('Concept Preview — konten belum disetujui untuk publikasi.')).toBeVisible();
+    await expect(page.getByText(/bukan merupakan nasihat hukum/)).toBeVisible();
+  });
+});

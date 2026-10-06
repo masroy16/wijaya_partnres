@@ -10,6 +10,7 @@ import TeamSection from '../../components/sections/TeamSection.astro';
 import { getTeamMembers } from '../../content/team';
 import ClientsSection from '../../components/sections/ClientsSection.astro';
 import { CLIENTS } from '../../content/clients';
+import ContactSection from '../../components/sections/ContactSection.astro';
 
 export function getStaticPaths() {
   return [{ params: { lang: 'id' } }, { params: { lang: 'en' } }];
@@ -24,7 +25,6 @@ const remainingSections: ReadonlyArray<{
   headline: string;
   body: string;
 }> = [
-  { id: 'contact', headline: content.contact.headline, body: content.contact.introduction },
 ];
 ---
 
@@ -41,6 +41,7 @@ const remainingSections: ReadonlyArray<{
     <EthicsSection locale={locale} content={content.ethics} />
     <TeamSection locale={locale} content={content.team} members={teamMembers} />
     <ClientsSection locale={locale} content={content.clients} clients={CLIENTS} />
+    <ContactSection locale={locale} content={content.contact} />
 
     {remainingSections.map(({ id, headline, body }) => (
       <section id={id} class="shell-section" aria-labelledby={`${id}-title`}>
