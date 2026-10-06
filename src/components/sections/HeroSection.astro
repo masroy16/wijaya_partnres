@@ -1,0 +1,138 @@
+---
+import { Image } from 'astro:assets';
+import firmLogo from '../../assets/brand/firm-logo-source.jpeg';
+import heroImage from '../../assets/sections/hero-gedung-merdeka.jpeg';
+import type { HomeContent, Locale } from '../../i18n/types';
+
+interface Props {
+  locale: Locale;
+  content: HomeContent['hero'];
+}
+
+const { locale, content } = Astro.props;
+const eyebrow = locale === 'id' ? 'Kantor hukum · Bandung · Sejak 1988' : 'Law firm · Bandung · Since 1988';
+---
+
+<section id="hero" class="hero" aria-labelledby="hero-title">
+  <Image
+    class="hero__image"
+    src={heroImage}
+    alt=""
+    widths={[640, 960, 1280]}
+    sizes="100vw"
+    format="webp"
+    quality={82}
+    loading="eager"
+    fetchpriority="high"
+    data-narrative-image
+  />
+  <div class="hero__overlay" aria-hidden="true"></div>
+  <div class="hero__content">
+    <div class="hero__brand">
+      <Image src={firmLogo} alt="Wijaya & Partners" width={108} height={110} format="webp" quality={82} />
+      <p>{eyebrow}</p>
+    </div>
+    <h1 id="hero-title">Absolute Loyalty. <span>Strategic Action.</span></h1>
+    <p class="hero__body">{content.body}</p>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: max(45rem, 100svh);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    isolation: isolate;
+    background: #161414;
+    color: #fff;
+  }
+
+  .hero__image,
+  .hero__overlay {
+    position: absolute;
+    z-index: -2;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__image {
+    object-position: center;
+  }
+
+  .hero__overlay {
+    z-index: -1;
+    background:
+      linear-gradient(90deg, rgb(10 9 9 / 84%) 0%, rgb(10 9 9 / 68%) 52%, rgb(10 9 9 / 58%) 100%),
+      linear-gradient(0deg, rgb(10 9 9 / 64%) 0%, transparent 42%);
+  }
+
+  .hero__content {
+    width: min(var(--content-width), calc(100% - 2rem));
+    padding-block: 11rem 6rem;
+  }
+
+  .hero__brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .hero__brand :global(img) {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 0.55rem;
+    object-fit: cover;
+  }
+
+  .hero__brand p {
+    margin: 0;
+    color: rgb(255 255 255 / 76%);
+    font-size: 0.76rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 13ch;
+    margin: clamp(2rem, 6vw, 4.5rem) 0 0;
+    font-size: clamp(3.5rem, 9vw, 8.5rem);
+    font-weight: 760;
+    line-height: 0.88;
+    letter-spacing: -0.07em;
+  }
+
+  h1 span {
+    color: #df5c62;
+  }
+
+  .hero__body {
+    max-width: 48rem;
+    margin: 2rem 0 0;
+    color: rgb(255 255 255 / 84%);
+    font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+    line-height: 1.65;
+  }
+
+  @media (max-width: 40rem) {
+    .hero {
+      min-height: 52rem;
+    }
+
+    .hero__image {
+      object-position: 52% center;
+    }
+
+    .hero__content {
+      padding-top: 10rem;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 16vw, 5.25rem);
+    }
+  }
+</style>

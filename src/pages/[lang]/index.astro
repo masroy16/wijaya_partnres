@@ -2,6 +2,10 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getHomeContent } from '../../content/home';
 import type { Locale, SectionId } from '../../i18n/types';
+import HeroSection from '../../components/sections/HeroSection.astro';
+import LegacySection from '../../components/sections/LegacySection.astro';
+import ExpertiseSection from '../../components/sections/ExpertiseSection.astro';
+import EthicsSection from '../../components/sections/EthicsSection.astro';
 
 export function getStaticPaths() {
   return [{ params: { lang: 'id' } }, { params: { lang: 'en' } }];
@@ -10,10 +14,11 @@ export function getStaticPaths() {
 const locale = Astro.params.lang as Locale;
 const content = getHomeContent(locale);
 const pathname = `/${locale}/`;
-const sections: ReadonlyArray<{ id: Exclude<SectionId, 'hero'>; headline: string; body: string }> = [
-  { id: 'legacy', headline: content.legacy.headline, body: content.legacy.paragraphs[0] },
-  { id: 'expertise', headline: content.expertise.headline, body: content.expertise.introduction },
-  { id: 'ethics', headline: content.ethics.headline, body: content.ethics.introduction },
+const remainingSections: ReadonlyArray<{
+  id: Exclude<SectionId, 'hero' | 'legacy' | 'expertise' | 'ethics'>;
+  headline: string;
+  body: string;
+}> = [
   { id: 'team', headline: content.team.headline, body: content.team.introduction },
   { id: 'clients', headline: content.clients.headline, body: content.clients.introduction },
   { id: 'contact', headline: content.contact.headline, body: content.contact.introduction },
@@ -27,12 +32,12 @@ const sections: ReadonlyArray<{ id: Exclude<SectionId, 'hero'>; headline: string
   pathname={pathname}
 >
   <main id="main-content" tabindex="-1">
-    <section id="hero" class="shell-section" aria-labelledby="hero-title">
-      <h1 id="hero-title">{content.hero.headline}</h1>
-      <p>{content.hero.body}</p>
-    </section>
+    <HeroSection locale={locale} content={content.hero} />
+    <LegacySection locale={locale} content={content.legacy} />
+    <ExpertiseSection locale={locale} content={content.expertise} />
+    <EthicsSection locale={locale} content={content.ethics} />
 
-    {sections.map(({ id, headline, body }) => (
+    {remainingSections.map(({ id, headline, body }) => (
       <section id={id} class="shell-section" aria-labelledby={`${id}-title`}>
         <h2 id={`${id}-title`}>{headline}</h2>
         <p>{body}</p>

@@ -1,0 +1,142 @@
+---
+import { Image } from 'astro:assets';
+import expertiseImage from '../../assets/sections/expertise-architecture.webp';
+import type { HomeContent, Locale } from '../../i18n/types';
+
+interface Props {
+  locale: Locale;
+  content: HomeContent['expertise'];
+}
+
+const { locale, content } = Astro.props;
+const eyebrow = locale === 'id' ? 'Keahlian' : 'Expertise';
+---
+
+<section id="expertise" class="expertise" aria-labelledby="expertise-title">
+  <Image
+    class="expertise__image"
+    src={expertiseImage}
+    alt=""
+    widths={[640, 960, 1440]}
+    sizes="100vw"
+    loading="lazy"
+    data-narrative-image
+  />
+  <div class="expertise__overlay" aria-hidden="true"></div>
+  <div class="expertise__content">
+    <div class="expertise__intro">
+      <p class="eyebrow">{eyebrow}</p>
+      <h2 id="expertise-title">{content.headline}</h2>
+      <p>{content.introduction}</p>
+    </div>
+    <ol class="expertise__list">
+      {content.items.map((item, index) => (
+        <li>
+          <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          <div>
+            <h3>{item.title}</h3>
+            <p>{item.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .expertise {
+    position: relative;
+    min-height: 62rem;
+    padding-block: clamp(7rem, 12vw, 11rem);
+    overflow: hidden;
+    isolation: isolate;
+    background: #111;
+    color: #fff;
+  }
+
+  .expertise__image,
+  .expertise__overlay {
+    position: absolute;
+    z-index: -2;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .expertise__overlay {
+    z-index: -1;
+    background: linear-gradient(110deg, rgb(8 8 9 / 92%) 0%, rgb(8 8 9 / 80%) 54%, rgb(8 8 9 / 62%) 100%);
+  }
+
+  .expertise__content {
+    width: min(var(--content-width), calc(100% - 2rem));
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(28rem, 1.15fr);
+    gap: clamp(4rem, 9vw, 9rem);
+  }
+
+  .eyebrow {
+    margin: 0 0 1.25rem;
+    color: #ef7a7e;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    max-width: 14ch;
+    margin: 0;
+    font-size: clamp(2.8rem, 5.7vw, 5.8rem);
+    line-height: 0.96;
+    letter-spacing: -0.06em;
+  }
+
+  .expertise__intro > p:last-child {
+    max-width: 36rem;
+    margin-top: 2rem;
+    color: rgb(255 255 255 / 72%);
+    font-size: 1.12rem;
+  }
+
+  .expertise__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid rgb(255 255 255 / 24%);
+  }
+
+  .expertise__list li {
+    padding-block: 1.7rem;
+    display: grid;
+    grid-template-columns: 2.2rem 1fr;
+    gap: 1rem;
+    border-bottom: 1px solid rgb(255 255 255 / 24%);
+  }
+
+  .expertise__list > li > span {
+    color: #ef7a7e;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: clamp(1.35rem, 2vw, 1.85rem);
+    line-height: 1.15;
+  }
+
+  .expertise__list p {
+    margin: 0.6rem 0 0;
+    color: rgb(255 255 255 / 68%);
+  }
+
+  @media (max-width: 58rem) {
+    .expertise__content {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
