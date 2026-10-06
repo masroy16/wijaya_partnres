@@ -48,3 +48,39 @@ test.describe('narrative homepage', () => {
     await context.close();
   });
 });
+
+test.describe('clients portfolio', () => {
+  test('shows the featured set and progressively reveals the full usable portfolio', async ({ page }) => {
+    await page.goto('/en/#clients');
+
+    const cards = page.locator('[data-client-card]');
+    await expect(cards).toHaveCount(27);
+    await expect(page.locator('[data-client-card]:visible')).toHaveCount(14);
+
+    const expand = page.getByRole('button', { name: 'View all clients' });
+    await expect(expand).toHaveAttribute('aria-expanded', 'false');
+    await expand.click();
+    await expect(page.locator('[data-client-card]:visible')).toHaveCount(27);
+    await expect(page.getByRole('button', { name: 'Show fewer clients' })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('shows every usable logo when JavaScript is unavailable', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    await page.goto('/en/#clients');
+
+    await expect(page.locator('[data-client-card]:visible')).toHaveCount(27);
+    await expect(page.getByRole('button', { name: 'View all clients' })).toBeHidden();
+    await context.close();
+  });
+
+  test('keeps a failed logo tile stable and named', async ({ page }) => {
+    await page.route('**/*kagum-group*', (route) => route.fulfill({ status: 404, body: '' }));
+    await page.goto('/en/#clients');
+
+    const tile = page.locator('[data-client-id="kagum-group"]');
+    await expect(tile).toBeVisible();
+    await expect(tile.getByText('Kagum Group', { exact: true })).toBeVisible();
+    expect(await tile.evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThan(100);
+  });
+});
