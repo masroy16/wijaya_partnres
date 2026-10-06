@@ -6,6 +6,8 @@ import HeroSection from '../../components/sections/HeroSection.astro';
 import LegacySection from '../../components/sections/LegacySection.astro';
 import ExpertiseSection from '../../components/sections/ExpertiseSection.astro';
 import EthicsSection from '../../components/sections/EthicsSection.astro';
+import TeamSection from '../../components/sections/TeamSection.astro';
+import { getTeamMembers } from '../../content/team';
 
 export function getStaticPaths() {
   return [{ params: { lang: 'id' } }, { params: { lang: 'en' } }];
@@ -13,13 +15,13 @@ export function getStaticPaths() {
 
 const locale = Astro.params.lang as Locale;
 const content = getHomeContent(locale);
+const teamMembers = getTeamMembers(locale);
 const pathname = `/${locale}/`;
 const remainingSections: ReadonlyArray<{
   id: Exclude<SectionId, 'hero' | 'legacy' | 'expertise' | 'ethics'>;
   headline: string;
   body: string;
 }> = [
-  { id: 'team', headline: content.team.headline, body: content.team.introduction },
   { id: 'clients', headline: content.clients.headline, body: content.clients.introduction },
   { id: 'contact', headline: content.contact.headline, body: content.contact.introduction },
 ];
@@ -36,6 +38,7 @@ const remainingSections: ReadonlyArray<{
     <LegacySection locale={locale} content={content.legacy} />
     <ExpertiseSection locale={locale} content={content.expertise} />
     <EthicsSection locale={locale} content={content.ethics} />
+    <TeamSection locale={locale} content={content.team} members={teamMembers} />
 
     {remainingSections.map(({ id, headline, body }) => (
       <section id={id} class="shell-section" aria-labelledby={`${id}-title`}>

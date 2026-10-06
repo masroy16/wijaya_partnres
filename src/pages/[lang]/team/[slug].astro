@@ -1,0 +1,24 @@
+---
+import TeamProfile from '../../../components/team/TeamProfile.astro';
+import { SITE } from '../../../config/site';
+import { getAllTeamPaths } from '../../../content/team';
+import type { TeamMember } from '../../../i18n/types';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return getAllTeamPaths();
+}
+
+interface Props {
+  member: TeamMember;
+}
+
+const { member } = Astro.props;
+const description = member.summary;
+const title = `${member.name}, ${member.credentials} | ${SITE.name}`;
+const pathname = `/${member.locale}/team/${member.slug}/`;
+---
+
+<BaseLayout locale={member.locale} title={title} description={description} pathname={pathname} type="profile">
+  <TeamProfile member={member} />
+</BaseLayout>
