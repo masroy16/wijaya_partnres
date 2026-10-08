@@ -1,0 +1,101 @@
+---
+import type { AlternativePageContent } from '../../content/alternative';
+import AlternativeCarousel from './AlternativeCarousel.astro';
+import AlternativeHeader from './AlternativeHeader.astro';
+
+interface Props {
+  content: AlternativePageContent;
+}
+
+const { content } = Astro.props;
+const teamBaseHref = content.locale === 'en' ? '/alternative/team/' : '/alternative/id/team/';
+---
+
+<AlternativeHeader content={content} />
+
+<main id="main-content">
+  <AlternativeCarousel content={content} />
+
+  <section id="about" class="section section--about">
+    <div class="section__index" aria-hidden="true">01 / About</div>
+    <div class="section__heading">
+      <p class="eyebrow">{content.about.eyebrow}</p>
+      <h2>{content.about.title}</h2>
+    </div>
+    <div class="about-copy">
+      {content.about.paragraphs.map((paragraph, index) => <p class:list={{ 'about-copy__lead': index === 0 }}>{paragraph}</p>)}
+      <p class="draft-note"><span>Draft</span>{content.about.draftNote}</p>
+    </div>
+    <dl class="firm-stats">
+      {content.about.stats.map((stat) => <div><dt>{stat.value}</dt><dd>{stat.label}</dd></div>)}
+    </dl>
+  </section>
+
+  <section id="team" class="section section--team">
+    <div class="section__index" aria-hidden="true">02 / Team</div>
+    <div class="section__heading section__heading--split">
+      <div><p class="eyebrow">{content.teamSection.eyebrow}</p><h2>{content.teamSection.title}</h2></div>
+      <p>{content.teamSection.introduction}</p>
+    </div>
+    <div class="team-grid">
+      {content.team.map((member, index) => (
+        <article class="team-card">
+          <a class="team-card__link" href={`${teamBaseHref}${member.slug}/`}>
+            <span class="team-card__number" aria-hidden="true">0{index + 1}</span>
+            <div class="team-card__monogram" aria-hidden="true">{member.initials}</div>
+            <div><p>Indonesia</p><h3>{member.name}</h3><span>{member.credentials}</span></div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section id="projects" class="section section--projects">
+    <div class="section__index" aria-hidden="true">03 / Projects</div>
+    <div class="section__heading section__heading--split">
+      <div><p class="eyebrow">{content.projects.eyebrow}</p><h2>{content.projects.title}</h2></div>
+      <p>{content.projects.introduction}</p>
+    </div>
+    <div class="project-grid">
+      {content.projects.marks.map((mark) => (
+        <figure class="project-mark"><img src={mark.image} alt={mark.name} loading="lazy" decoding="async" /><figcaption>{mark.name}</figcaption></figure>
+      ))}
+    </div>
+    <p class="draft-note"><span>Draft</span>{content.projects.draftNote}</p>
+  </section>
+
+  <section id="contact" class="contact-panel">
+    <div class="contact-panel__topline"><p class="eyebrow">{content.contact.eyebrow}</p><span>04 / Bandung, ID</span></div>
+    <div class="contact-panel__intro"><h2>{content.contact.title}</h2><p>{content.contact.introduction}</p></div>
+    <div class="contact-grid">
+      <a href={`mailto:${content.contact.email}`}><span>{content.contact.labels.email}</span><strong>{content.contact.email}</strong></a>
+      <a href={content.contact.phoneHref}><span>{content.contact.labels.phone}</span><strong>{content.contact.phoneDisplay}</strong></a>
+      <a href={content.contact.whatsappHref} target="_blank" rel="noreferrer"><span>{content.contact.labels.whatsapp}</span><strong>{content.contact.phoneDisplay} ↗</strong></a>
+      <div><span>{content.contact.labels.hours}</span><strong>{content.contact.hours}</strong></div>
+      <a class="contact-grid__address" href={content.contact.mapHref} target="_blank" rel="noreferrer"><span>{content.contact.labels.address}</span><strong>{content.contact.address}</strong><em>{content.contact.labels.map} ↗</em></a>
+    </div>
+    <p class="draft-note draft-note--dark"><span>Draft</span>{content.contact.draftNote}</p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div><strong>WIJAYA</strong><span>& PARTNERS</span></div>
+  <p>{content.footer.disclaimer}</p>
+  <p>{content.footer.copyright}</p>
+</footer>
+
+<a class="floating-whatsapp" href={content.contact.whatsappHref} target="_blank" rel="noreferrer" aria-label={`${content.contact.labels.whatsapp}: ${content.contact.phoneDisplay}`}>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5A11 11 0 0 0 3.2 16.8L2 22l5.3-1.2A11 11 0 1 0 20.5 3.5Zm-8.5 16a8.4 8.4 0 0 1-4.3-1.2l-.3-.2-3.1.7.7-3-.2-.3A8.5 8.5 0 1 1 12 19.5Zm4.7-6.3c-.3-.1-1.5-.7-1.8-.8-.2-.1-.4-.1-.6.2l-.8 1c-.1.2-.3.2-.5.1-1.5-.7-2.6-1.6-3.4-3-.3-.4.3-.5.8-1.4.1-.2 0-.4 0-.6l-.8-1.9c-.2-.5-.5-.4-.7-.4h-.5c-.2 0-.5.1-.7.3-.8.9-1.1 1.8-.9 2.9.2 1.3 1.1 2.6 2 3.5 1.1 1.1 3.3 2.9 6.3 4 .8.3 1.7.3 2.3.2.8-.1 1.5-.7 1.7-1.3.2-.5.2-1 .1-1.1-.1-.1-.3-.2-.5-.3Z"/></svg>
+</a>
+
+<script>
+  const carousel = document.querySelector<HTMLElement>('[data-carousel]');
+  const floatingWhatsApp = document.querySelector<HTMLElement>('.floating-whatsapp');
+
+  if (carousel && floatingWhatsApp && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(([entry]) => {
+      floatingWhatsApp.toggleAttribute('data-over-carousel', Boolean(entry?.isIntersecting));
+    }, { threshold: 0.01 });
+    observer.observe(carousel);
+  }
+</script>

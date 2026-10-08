@@ -1,0 +1,12 @@
+---
+import AlternativePage from '../../components/alternative/AlternativePage.astro';
+import { getAlternativeContent } from '../../content/alternative';
+import AlternativeLayout from '../../layouts/AlternativeLayout.astro';
+
+const content = getAlternativeContent('en');
+---
+
+<AlternativeLayout lang="en" title={content.meta.title} description={content.meta.description}>
+  <div class="concept-ribbon"><span>{content.previewLabel}</span></div>
+  <AlternativePage content={content} />
+</AlternativeLayout>

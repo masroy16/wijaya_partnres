@@ -1,0 +1,79 @@
+---
+import type { AlternativePageContent } from '../../content/alternative';
+
+interface Props {
+  content: AlternativePageContent;
+  profileSlug?: string;
+}
+
+const { content, profileSlug } = Astro.props;
+const homeHref = content.locale === 'en' ? '/alternative/' : '/alternative/id/';
+const alternateHomeHref = content.locale === 'en' ? '/alternative/id/' : '/alternative/';
+const alternateHref = profileSlug
+  ? `${alternateHomeHref}team/${profileSlug}/`
+  : alternateHomeHref;
+const alternateLabel = content.locale === 'en' ? 'ID' : 'EN';
+---
+
+<a class="skip-link" href="#main-content">{content.utilities.skip}</a>
+
+<header class="site-header" data-site-header>
+  <a class="brand" href={homeHref} aria-label="Wijaya & Partners home">
+    <img src="/assets/alternative/wijaya-partners-mark.png" alt="" width="1263" height="1246" />
+    <span class="brand__wordmark">WIJAYA &amp; PARTNERS</span>
+  </a>
+
+  <button class="icon-button menu-toggle" type="button" data-menu-toggle data-open-label={content.utilities.menu} data-close-label={content.utilities.close} aria-expanded="false" aria-controls="primary-navigation" aria-label={content.utilities.menu}>
+    <span></span><span></span>
+  </button>
+
+  <nav id="primary-navigation" class="primary-navigation" aria-label="Primary navigation" data-primary-navigation>
+    {content.navigation.map((item, index) => (
+      <a href={profileSlug ? `${homeHref}${item.href}` : item.href}><span aria-hidden="true">0{index + 1}</span>{item.label}</a>
+    ))}
+  </nav>
+
+  <div class="header-utilities">
+    <a class="language-toggle" href={alternateHref} lang={content.locale === 'en' ? 'id' : 'en'} aria-label={content.utilities.language}>{alternateLabel}</a>
+    <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label={content.utilities.theme}>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.3A8.5 8.5 0 0 1 8.7 4a8.5 8.5 0 1 0 11.3 11.3Z"/></svg>
+    </button>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const menuButton = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const nav = header?.querySelector<HTMLElement>('[data-primary-navigation]');
+  const themeButton = header?.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+
+  const closeMenu = () => {
+    header?.removeAttribute('data-menu-open');
+    menuButton?.setAttribute('aria-expanded', 'false');
+    if (menuButton) menuButton.setAttribute('aria-label', menuButton.dataset.openLabel ?? 'Open menu');
+  };
+
+  header?.setAttribute('data-enhanced', 'true');
+
+  menuButton?.addEventListener('click', () => {
+    const willOpen = !header?.hasAttribute('data-menu-open');
+    header?.toggleAttribute('data-menu-open', willOpen);
+    menuButton.setAttribute('aria-expanded', String(willOpen));
+    menuButton.setAttribute('aria-label', willOpen ? menuButton.dataset.closeLabel ?? 'Close menu' : menuButton.dataset.openLabel ?? 'Open menu');
+  });
+
+  nav?.addEventListener('click', (event) => {
+    if ((event.target as Element).closest('a')) closeMenu();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMenu();
+  });
+
+  themeButton?.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('wnp-theme', next); } catch { /* theme still applies */ }
+  });
+</script>
