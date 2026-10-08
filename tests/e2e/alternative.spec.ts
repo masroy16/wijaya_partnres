@@ -209,6 +209,7 @@ test('keeps the pause control as the topmost hit target on a narrow carousel', a
   await page.setViewportSize({ width: 320, height: 760 });
   await page.goto('/alternative/');
   await page.evaluate(() => window.scrollTo(0, 60));
+  await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBe(60);
 
   const pauseIsTopmost = await page.locator('[data-pause]').evaluate((pause) => {
     const rect = pause.getBoundingClientRect();

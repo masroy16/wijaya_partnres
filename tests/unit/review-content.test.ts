@@ -6,9 +6,17 @@ describe('client review concepts', () => {
     const concepts = module?.REVIEW_CONCEPTS ?? [];
 
     expect(concepts).toHaveLength(2);
-    expect(concepts.map(({ id, title }) => ({ id, title }))).toEqual([
-      { id: 'concept-01', title: 'Concept 01' },
-      { id: 'concept-02', title: 'Concept 02' },
+    expect(concepts.map(({ id, title, description }) => ({ id, title, description }))).toEqual([
+      {
+        id: 'concept-01',
+        title: 'Concept 01',
+        description: 'Profil perusahaan dengan tampilan terang dan alur konten berbasis bagian.',
+      },
+      {
+        id: 'concept-02',
+        title: 'Concept 02',
+        description: 'Profil perusahaan dengan tampilan editorial gelap dan pembuka berbasis carousel.',
+      },
     ]);
   });
 

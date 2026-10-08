@@ -7,24 +7,24 @@ export type ReviewLocale = 'id' | 'en';
 
 export interface ReviewLink {
   locale: ReviewLocale;
-  label: string;
-  href: string;
+  label: 'Bahasa Indonesia' | 'English';
+  href: '/id/' | '/en/' | '/alternative/id/' | '/alternative/';
 }
 
 export interface ReviewConcept {
   id: ReviewConceptId;
-  title: string;
+  title: 'Concept 01' | 'Concept 02';
+  description: string;
   thumbnail: ImageMetadata;
-  thumbnailAlt: string;
-  links: readonly ReviewLink[];
+  links: readonly [ReviewLink, ReviewLink];
 }
 
-export const REVIEW_CONCEPTS: readonly ReviewConcept[] = [
+export const REVIEW_CONCEPTS: readonly [ReviewConcept, ReviewConcept] = [
   {
     id: 'concept-01',
     title: 'Concept 01',
+    description: 'Profil perusahaan dengan tampilan terang dan alur konten berbasis bagian.',
     thumbnail: concept01,
-    thumbnailAlt: 'Tampilan awal Concept 01',
     links: [
       { locale: 'id', label: 'Bahasa Indonesia', href: '/id/' },
       { locale: 'en', label: 'English', href: '/en/' },
@@ -33,11 +33,11 @@ export const REVIEW_CONCEPTS: readonly ReviewConcept[] = [
   {
     id: 'concept-02',
     title: 'Concept 02',
+    description: 'Profil perusahaan dengan tampilan editorial gelap dan pembuka berbasis carousel.',
     thumbnail: concept02,
-    thumbnailAlt: 'Tampilan awal Concept 02',
     links: [
       { locale: 'id', label: 'Bahasa Indonesia', href: '/alternative/id/' },
       { locale: 'en', label: 'English', href: '/alternative/' },
     ],
   },
-] as const;
+];

@@ -1,5 +1,14 @@
 import { expect, test, type Page } from '@playwright/test';
 
+const teamMembers = [
+  ['herman-wijaya', 'Herman Wijaya'],
+  ['f-ebby-abraham', 'F. Ebby Abraham'],
+  ['rani-sisco', 'Rani Sisco'],
+  ['arifan-sudaryanto', 'Arifan Sudaryanto'],
+  ['diana-pangestu', 'Diana Pangestu'],
+  ['andi-cipta-lukmana', 'Andi Cipta Lukmana'],
+] as const;
+
 async function visitWithoutConsoleErrors(page: Page, path: string) {
   const consoleErrors: string[] = [];
   page.on('console', (message) => {
@@ -39,15 +48,13 @@ test.describe('coexisting design concepts', () => {
     });
   }
 
-  for (const path of [
-    '/id/team/herman-wijaya/',
-    '/en/team/herman-wijaya/',
-    '/alternative/team/herman-wijaya/',
-    '/alternative/id/team/herman-wijaya/',
-  ]) {
-    test(`resolves the team profile ${path}`, async ({ page }) => {
-      await visitWithoutConsoleErrors(page, path);
-      await expect(page.getByRole('heading', { level: 1, name: 'Herman Wijaya' })).toBeVisible();
-    });
+  for (const basePath of ['/id/team/', '/en/team/', '/alternative/team/', '/alternative/id/team/']) {
+    for (const [slug, name] of teamMembers) {
+      const path = `${basePath}${slug}/`;
+      test(`resolves the team profile ${path}`, async ({ page }) => {
+        await visitWithoutConsoleErrors(page, path);
+        await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
+      });
+    }
   }
 });

@@ -33,12 +33,24 @@ describe('temporary preview crawler policy', () => {
 
   test('keeps hosting static and applies noindex headers to every route', () => {
     const configuration = read('netlify.toml');
+    const artifactHeaders = read('public/_headers');
 
     expect(configuration).toContain('command = "npm run build"');
     expect(configuration).toContain('publish = "dist"');
     expect(configuration).toMatch(/\[\[headers\]\][\s\S]*for = "\/\*"[\s\S]*X-Robots-Tag = "noindex, nofollow"/);
     expect(configuration).not.toMatch(/^\s*\[(?:functions|identity|analytics)\]/m);
     expect(configuration).not.toMatch(/^\s*\[\[redirects\]\]/m);
+    expect(artifactHeaders).toContain('/*');
+    for (const header of [
+      'X-Robots-Tag: noindex, nofollow',
+      'X-Content-Type-Options: nosniff',
+      'X-Frame-Options: DENY',
+      'Referrer-Policy: strict-origin-when-cross-origin',
+      'Permissions-Policy: camera=(), microphone=(), geolocation=()',
+      "Content-Security-Policy: default-src 'self'",
+    ]) {
+      expect(artifactHeaders).toContain(header);
+    }
   });
 
   test('does not publish a sitemap and ignores local Netlify state', () => {

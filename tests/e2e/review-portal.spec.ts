@@ -9,6 +9,8 @@ async function expectCompleteSelector(page: import('@playwright/test').Page) {
   ).toBeVisible();
   await expect(page.locator('[data-review-card]')).toHaveCount(2);
   await expect(page.locator('[data-review-thumbnail]')).toHaveCount(2);
+  await expect(page.getByText('Profil perusahaan dengan tampilan terang dan alur konten berbasis bagian.')).toBeVisible();
+  await expect(page.getByText('Profil perusahaan dengan tampilan editorial gelap dan pembuka berbasis carousel.')).toBeVisible();
 
   const links = page.locator('main a');
   await expect(links).toHaveCount(4);
@@ -16,6 +18,10 @@ async function expectCompleteSelector(page: import('@playwright/test').Page) {
 }
 
 test('renders a neutral selector that is separate from both company-profile concepts', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text());
+  });
   const response = await page.goto('/');
 
   expect(response?.status()).toBe(200);
@@ -27,20 +33,43 @@ test('renders a neutral selector that is separate from both company-profile conc
   await expect(page.locator('form')).toHaveCount(0);
   await expect(page.getByRole('button')).toHaveCount(0);
   await expect(page.getByText(/feedback|umpan balik/i)).toHaveCount(0);
+  expect(consoleErrors).toEqual([]);
 });
 
-test('keeps every destination keyboard reachable at a narrow zoom-equivalent viewport', async ({ page }) => {
+test('keeps every destination in keyboard order at a narrow zoom-equivalent viewport', async ({ page, browserName }) => {
   await page.setViewportSize({ width: 160, height: 284 });
   await page.goto('/');
 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 
-  const focusedHrefs: string[] = [];
-  for (let index = 0; index < reviewLinks.length; index += 1) {
-    await page.keyboard.press('Tab');
-    focusedHrefs.push(await page.evaluate(() => (document.activeElement as HTMLAnchorElement | null)?.getAttribute('href') ?? ''));
+  const links = page.locator('main a');
+  await expect(links.evaluateAll((items) => items.map((item) => item.getAttribute('href')))).resolves.toEqual(reviewLinks);
+  expect(await links.evaluateAll((items) => items.every((item) => (item as HTMLElement).tabIndex === 0))).toBe(true);
+
+  if (browserName !== 'webkit') {
+    const focusedHrefs: string[] = [];
+    for (let index = 0; index < reviewLinks.length; index += 1) {
+      await page.keyboard.press('Tab');
+      focusedHrefs.push(await page.evaluate(() => (document.activeElement as HTMLAnchorElement | null)?.getAttribute('href') ?? ''));
+    }
+    expect(focusedHrefs).toEqual(reviewLinks);
+  } else {
+    for (const href of reviewLinks) {
+      const link = page.locator(`main a[href="${href}"]`);
+      await link.focus();
+      await expect(link).toBeFocused();
+    }
   }
-  expect(focusedHrefs).toEqual(reviewLinks);
+});
+
+test('opens every concept entry and returns to the selector with browser Back', async ({ page }) => {
+  for (const href of reviewLinks) {
+    await page.goto('/');
+    await page.locator(`main a[href="${href}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`${href.replaceAll('/', '\\/')}$`));
+    await page.goBack();
+    await expect(page.getByRole('heading', { level: 1, name: 'Internal Design Review' })).toBeVisible();
+  }
 });
 
 test('retains stable preview surfaces and usable links when thumbnails cannot load', async ({ page }) => {

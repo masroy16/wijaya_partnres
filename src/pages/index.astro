@@ -10,8 +10,8 @@ const description = 'Pemilihan konsep internal untuk review desain Wijaya And Pa
 <ReviewLayout {title} {description}>
   <main class="review-portal__main">
     <header class="review-portal__intro">
-      <p class="review-portal__eyebrow">Design review workspace</p>
-      <h1>Internal Design Review</h1>
+      <p class="review-portal__eyebrow" lang="en">Design review workspace</p>
+      <h1 lang="en">Internal Design Review</h1>
       <p class="review-portal__notice">
         Halaman ini hanya untuk memilih konsep dan bukan bagian dari website Wijaya And Partners.
       </p>
@@ -23,14 +23,15 @@ const description = 'Pemilihan konsep internal untuk review desain Wijaya And Pa
           <div class="review-card__preview" data-review-thumbnail>
             <Image
               src={concept.thumbnail}
-              alt={concept.thumbnailAlt}
+              alt={`Tampilan awal ${concept.title}`}
               widths={[480, 720, 960]}
               sizes="(min-width: 48rem) 42vw, 100vw"
               loading="eager"
             />
           </div>
           <div class="review-card__body">
-            <h2>{concept.title}</h2>
+            <h2 lang="en">{concept.title}</h2>
+            <p class="review-card__description">{concept.description}</p>
             <div class="review-card__links" aria-label={`Buka ${concept.title}`}>
               {concept.links.map((link) => (
                 <a href={link.href} lang={link.locale}>{link.label}</a>
