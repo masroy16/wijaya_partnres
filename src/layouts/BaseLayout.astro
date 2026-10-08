@@ -1,0 +1,116 @@
+---
+import PreviewRobots from '../components/meta/PreviewRobots.astro';
+import SiteHeader from '../components/navigation/SiteHeader.astro';
+import FloatingWhatsApp from '../components/FloatingWhatsApp.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { SITE } from '../config/site';
+import { CONTACT } from '../content/contact';
+import { getHomeContent } from '../content/home';
+import { getAlternatePath } from '../i18n/routes';
+import type { Locale } from '../i18n/types';
+import '../styles/global.css';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  pathname: string;
+  image?: string;
+  type?: 'website' | 'profile';
+}
+
+const {
+  locale,
+  title,
+  description,
+  pathname,
+  image,
+  type = 'website',
+} = Astro.props;
+const content = getHomeContent(locale);
+const absoluteUrl = new URL(pathname, SITE.canonicalBase);
+const alternateLocale: Locale = locale === 'id' ? 'en' : 'id';
+const alternatePath = getAlternatePath(pathname, alternateLocale);
+const skipLabel = locale === 'id' ? 'Lewati ke konten utama' : 'Skip to main content';
+const ogLocale = locale === 'id' ? 'id_ID' : 'en_US';
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'LegalService',
+  name: SITE.name,
+  url: SITE.canonicalBase,
+  email: CONTACT.email,
+  telephone: CONTACT.phoneE164,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Komplek Surya Setra A3, Jl. Ters. Dr. Ir. Sutami Raya No. 16',
+    addressLocality: 'Bandung',
+    addressRegion: 'West Java',
+    addressCountry: 'ID',
+  },
+};
+---
+
+<!doctype html>
+<html lang={locale} data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <PreviewRobots />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f7f4ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#100e0e" media="(prefers-color-scheme: dark)" />
+    <link rel="canonical" href={absoluteUrl} />
+    <link rel="alternate" hreflang={locale} href={absoluteUrl} />
+    <link rel="alternate" hreflang={alternateLocale} href={new URL(alternatePath, SITE.canonicalBase)} />
+    <link rel="alternate" hreflang="x-default" href={new URL('/id/', SITE.canonicalBase)} />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={absoluteUrl} />
+    {image && <meta property="og:image" content={new URL(image, SITE.canonicalBase)} />}
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)}></script>
+    <title>{title}</title>
+    <script is:inline>
+      (() => {
+        document.documentElement.classList.add('js');
+        let storedTheme = null;
+        try {
+          storedTheme = localStorage.getItem('wp-theme');
+        } catch {
+          storedTheme = null;
+        }
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme =
+          storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : systemTheme;
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">{skipLabel}</a>
+    <SiteHeader locale={locale} pathname={pathname} navigation={content.navigation} />
+    <slot />
+    <SiteFooter locale={locale} content={content.footer} />
+    <FloatingWhatsApp locale={locale} />
+    <script>
+      const sections = [...document.querySelectorAll<HTMLElement>('[data-section-reveal]')];
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduceMotion || !('IntersectionObserver' in window)) {
+        sections.forEach((section) => { section.dataset.sectionVisible = 'true'; });
+      } else if (sections.length) {
+        document.documentElement.classList.add('reveal-ready');
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              (entry.target as HTMLElement).dataset.sectionVisible = String(entry.isIntersecting);
+            });
+          },
+          { rootMargin: '-8% 0px -10%', threshold: 0.12 },
+        );
+        sections.forEach((section) => observer.observe(section));
+      }
+    </script>
+  </body>
+</html>

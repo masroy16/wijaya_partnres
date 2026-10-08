@@ -1,0 +1,106 @@
+import { expect, test } from '@playwright/test';
+
+const reviewLinks = ['/id/', '/en/', '/alternative/id/', '/alternative/'];
+
+async function expectCompleteSelector(page: import('@playwright/test').Page) {
+  await expect(page.getByRole('heading', { level: 1, name: 'Internal Design Review' })).toBeVisible();
+  await expect(
+    page.getByText('Halaman ini hanya untuk memilih konsep dan bukan bagian dari website Wijaya And Partners.'),
+  ).toBeVisible();
+  await expect(page.locator('[data-review-card]')).toHaveCount(2);
+  await expect(page.locator('[data-review-thumbnail]')).toHaveCount(2);
+  await expect(page.getByText('Profil perusahaan dengan tampilan terang dan alur konten berbasis bagian.')).toBeVisible();
+  await expect(page.getByText('Profil perusahaan dengan tampilan editorial gelap dan pembuka berbasis carousel.')).toBeVisible();
+
+  const links = page.locator('main a');
+  await expect(links).toHaveCount(4);
+  await expect(links.evaluateAll((items) => items.map((item) => item.getAttribute('href')))).resolves.toEqual(reviewLinks);
+}
+
+test('renders a neutral selector that is separate from both company-profile concepts', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text());
+  });
+  const response = await page.goto('/');
+
+  expect(response?.status()).toBe(200);
+  await expectCompleteSelector(page);
+  await expect(page.locator('[data-site-header], footer, [data-primary-navigation]')).toHaveCount(0);
+  await expect(page.locator('img[src*="wijaya-partners-logo"], [data-brand-logo], [data-brand-lockup]')).toHaveCount(0);
+  await expect(page.locator('[data-theme-toggle], .theme-toggle')).toHaveCount(0);
+  await expect(page.locator('a[href^="mailto:"], a[href^="tel:"], a[href*="wa.me"]')).toHaveCount(0);
+  await expect(page.locator('form')).toHaveCount(0);
+  await expect(page.getByRole('button')).toHaveCount(0);
+  await expect(page.getByText(/feedback|umpan balik/i)).toHaveCount(0);
+  expect(consoleErrors).toEqual([]);
+});
+
+test('keeps every destination in keyboard order at a narrow zoom-equivalent viewport', async ({ page, browserName }) => {
+  await page.setViewportSize({ width: 160, height: 284 });
+  await page.goto('/');
+
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+
+  const links = page.locator('main a');
+  await expect(links.evaluateAll((items) => items.map((item) => item.getAttribute('href')))).resolves.toEqual(reviewLinks);
+  expect(await links.evaluateAll((items) => items.every((item) => (item as HTMLElement).tabIndex === 0))).toBe(true);
+
+  if (browserName !== 'webkit') {
+    const focusedHrefs: string[] = [];
+    for (let index = 0; index < reviewLinks.length; index += 1) {
+      await page.keyboard.press('Tab');
+      focusedHrefs.push(await page.evaluate(() => (document.activeElement as HTMLAnchorElement | null)?.getAttribute('href') ?? ''));
+    }
+    expect(focusedHrefs).toEqual(reviewLinks);
+  } else {
+    for (const href of reviewLinks) {
+      const link = page.locator(`main a[href="${href}"]`);
+      await link.focus();
+      await expect(link).toBeFocused();
+    }
+  }
+});
+
+test('opens every concept entry and returns to the selector with browser Back', async ({ page }) => {
+  for (const href of reviewLinks) {
+    await page.goto('/');
+    await page.locator(`main a[href="${href}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`${href.replaceAll('/', '\\/')}$`));
+    await page.goBack();
+    await expect(page.getByRole('heading', { level: 1, name: 'Internal Design Review' })).toBeVisible();
+  }
+});
+
+test('retains stable preview surfaces and usable links when thumbnails cannot load', async ({ page }) => {
+  await page.route(/concept-0[12]/, (route) => route.abort());
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto('/');
+
+  const previews = page.locator('[data-review-thumbnail]');
+  await expect(previews).toHaveCount(2);
+  const dimensions = await previews.evaluateAll((items) =>
+    items.map((item) => ({ width: item.getBoundingClientRect().width, height: item.getBoundingClientRect().height })),
+  );
+  expect(dimensions.every(({ width, height }) => width > 0 && height > 0)).toBe(true);
+  for (const href of reviewLinks) await expect(page.locator(`main a[href="${href}"]`)).toBeVisible();
+});
+
+test('remains complete without JavaScript', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+
+  await page.goto('/');
+  await expectCompleteSelector(page);
+  await context.close();
+});
+
+test('preview safety applies one noindex directive to every concept entry', async ({ page }) => {
+  for (const path of ['/', '/id/', '/en/', '/alternative/id/', '/alternative/']) {
+    const response = await page.goto(path);
+    expect(response?.status(), `${path} should return HTTP 200`).toBe(200);
+    const robots = page.locator('meta[name="robots"]');
+    await expect(robots).toHaveCount(1);
+    await expect(robots).toHaveAttribute('content', 'noindex, nofollow');
+  }
+});

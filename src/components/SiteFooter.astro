@@ -1,0 +1,150 @@
+---
+import { Image } from 'astro:assets';
+import firmLogo from '../assets/brand/wijaya-partners-logo.png';
+import type { HomeContent, Locale } from '../i18n/types';
+
+interface Props {
+  locale: Locale;
+  content: HomeContent['footer'];
+}
+
+const { locale, content } = Astro.props;
+const copyright = locale === 'id' ? 'Hak cipta dilindungi.' : 'All rights reserved.';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <span class="site-footer__brand">
+        <Image
+          src={firmLogo}
+          alt="Wijaya & Partners"
+          width={200}
+          height={204}
+          format="webp"
+          quality={90}
+          data-brand-lockup
+        />
+        <Image
+          class="site-footer__brand-contrast"
+          src={firmLogo}
+          alt=""
+          aria-hidden="true"
+          width={200}
+          height={204}
+          format="webp"
+          quality={90}
+          data-brand-lockup-contrast
+        />
+      </span>
+      <p class="site-footer__preview">{content.previewLabel}</p>
+    </div>
+    <nav aria-label={locale === 'id' ? 'Navigasi footer' : 'Footer navigation'}>
+      <a href={`/${locale}/#legacy`}>{locale === 'id' ? 'Tentang' : 'About'}</a>
+      <a href={`/${locale}/#team`}>{locale === 'id' ? 'Tim' : 'Team'}</a>
+      <a href={`/${locale}/#contact`}>{locale === 'id' ? 'Kontak' : 'Contact'}</a>
+    </nav>
+    <div class="site-footer__legal">
+      <p>{content.disclaimer}</p>
+      <p>© {year} Wijaya &amp; Partners. {copyright}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding: 3rem 0 6.5rem;
+    border-top: 1px solid var(--color-stone);
+    background: var(--color-canvas);
+  }
+
+  .site-footer__inner {
+    width: min(var(--content-width), calc(100% - 2rem));
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2.5rem;
+  }
+
+  .site-footer__brand {
+    width: clamp(8rem, 12vw, 10rem);
+    display: grid;
+    filter: drop-shadow(0 0.35rem 0.9rem rgb(0 0 0 / 10%));
+  }
+
+  .site-footer__brand :global(img) {
+    width: 100%;
+    height: auto;
+    grid-area: 1 / 1;
+    object-fit: contain;
+  }
+
+  .site-footer__brand-contrast {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  :global(:root[data-theme='dark']) .site-footer__brand {
+    filter: drop-shadow(0 0.35rem 0.9rem rgb(0 0 0 / 35%));
+  }
+
+  :global(:root[data-theme='dark']) .site-footer__brand-contrast {
+    visibility: visible;
+    clip-path: inset(73% 0 0);
+    filter: brightness(0) invert(1) drop-shadow(0 0 0.08rem rgb(0 0 0 / 85%));
+  }
+
+  .site-footer__preview {
+    margin: 0.7rem 0 0;
+    color: var(--color-burgundy-700);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    gap: 1.25rem;
+  }
+
+  nav a {
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-ink-muted);
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-underline-offset: 0.25rem;
+  }
+
+  .site-footer__legal {
+    grid-column: 1 / -1;
+    padding-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    border-top: 1px solid var(--color-stone);
+    color: var(--color-ink-muted);
+    font-size: 0.78rem;
+  }
+
+  .site-footer__legal p {
+    max-width: 44rem;
+    margin: 0;
+  }
+
+  @media (max-width: 42rem) {
+    .site-footer__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .site-footer__legal {
+      grid-column: auto;
+      flex-direction: column;
+    }
+  }
+</style>

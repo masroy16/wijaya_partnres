@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  locale="id"
+  title="Halaman tidak ditemukan | Wijaya And Partners"
+  description="Halaman concept preview Wijaya And Partners ini tidak ditemukan."
+  pathname="/404/"
+>
+  <main id="main-content" class="not-found" tabindex="-1">
+    <p class="not-found__code">404</p>
+    <h1>Halaman tidak ditemukan.<br /><span lang="en">Page not found.</span></h1>
+    <p>Pilih bahasa untuk kembali ke halaman utama. <span lang="en">Choose a language to return home.</span></p>
+    <div class="not-found__actions">
+      <a href="/id/">Bahasa Indonesia</a>
+      <a href="/en/" lang="en">English</a>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .not-found {
+    min-height: 85svh;
+    padding: 11rem 1rem 6rem;
+    display: grid;
+    place-content: center;
+    text-align: center;
+  }
+
+  .not-found__code {
+    margin: 0;
+    color: var(--color-burgundy-700);
+    font-size: 0.8rem;
+    font-weight: 850;
+    letter-spacing: 0.18em;
+  }
+
+  h1 {
+    max-width: 16ch;
+    margin: 1rem auto 0;
+    font-size: clamp(2.8rem, 8vw, 6.5rem);
+    line-height: 0.96;
+    letter-spacing: -0.06em;
+  }
+
+  h1 span {
+    color: var(--color-ink-muted);
+  }
+
+  .not-found > p:not(.not-found__code) {
+    max-width: 38rem;
+    margin: 1.7rem auto 0;
+    color: var(--color-ink-muted);
+  }
+
+  .not-found__actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .not-found__actions a {
+    min-height: 3rem;
+    padding-inline: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-stone);
+    border-radius: var(--radius-pill);
+    font-weight: 760;
+    text-decoration: none;
+  }
+</style>

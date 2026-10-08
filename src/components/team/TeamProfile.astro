@@ -1,0 +1,255 @@
+---
+import type { TeamMember } from '../../i18n/types';
+
+interface Props {
+  member: TeamMember;
+}
+
+const { member } = Astro.props;
+const isIndonesian = member.locale === 'id';
+const labels = isIndonesian
+  ? {
+      eyebrow: 'Tim kami',
+      back: 'Kembali ke tim kami',
+      draft: 'Profil draft — memerlukan konfirmasi sebelum publikasi.',
+      pending: 'Profil lengkap sedang disiapkan.',
+      biography: 'Profil',
+      education: 'Pendidikan',
+      organizations: 'Organisasi profesional',
+      practices: 'Bidang praktik',
+    }
+  : {
+      eyebrow: 'Our team',
+      back: 'Back to our team',
+      draft: 'Draft profile — confirmation required before publication.',
+      pending: 'A complete profile is being prepared.',
+      biography: 'Profile',
+      education: 'Education',
+      organizations: 'Professional organizations',
+      practices: 'Practice areas',
+    };
+const initials = member.name
+  .replace(/^F\.\s*/i, 'F ')
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((part) => part[0])
+  .join('')
+  .toUpperCase();
+---
+
+<main id="main-content" class="profile" tabindex="-1">
+  <header class="profile__hero">
+    <div class="profile__hero-inner">
+      <div class="profile__monogram" aria-hidden="true">{initials}</div>
+      <div>
+        <p class="profile__eyebrow">{labels.eyebrow} · {member.country}</p>
+        <h1>{member.name}</h1>
+        <p class="profile__credentials">{member.credentials}</p>
+        {member.profileStatus === 'complete-draft' && <p class="profile__summary">{member.summary}</p>}
+      </div>
+    </div>
+  </header>
+
+  <div class="profile__body">
+    <a class="profile__back" href={`/${member.locale}/#team`}>← {labels.back}</a>
+
+    {member.profileStatus === 'complete-draft' ? (
+      <>
+        <section class="profile__biography" aria-labelledby="profile-biography">
+          <h2 id="profile-biography">{labels.biography}</h2>
+          {member.biography.map((paragraph) => <p>{paragraph}</p>)}
+        </section>
+        <div class="profile__columns">
+          <section aria-labelledby="profile-education">
+            <h2 id="profile-education">{labels.education}</h2>
+            <ul>{member.education.map((item) => <li>{item}</li>)}</ul>
+          </section>
+          <section aria-labelledby="profile-organizations">
+            <h2 id="profile-organizations">{labels.organizations}</h2>
+            <ul>{member.organizations.map((item) => <li>{item}</li>)}</ul>
+          </section>
+        </div>
+        <section aria-labelledby="profile-practices">
+          <h2 id="profile-practices">{labels.practices}</h2>
+          <ul class="profile__practice-list">
+            {member.practiceAreas.map((item) => <li>{item}</li>)}
+          </ul>
+        </section>
+        <p class="profile__notice">{labels.draft}</p>
+      </>
+    ) : (
+      <section class="profile__pending" aria-labelledby="profile-pending">
+        <h2 id="profile-pending">{labels.pending}</h2>
+        <p>{isIndonesian ? 'Informasi profesional anggota tim ini akan ditambahkan setelah memperoleh persetujuan.' : 'Professional information for this team member will be added after approval.'}</p>
+      </section>
+    )}
+  </div>
+</main>
+
+<style>
+  .profile {
+    min-width: 0;
+    padding-bottom: clamp(6rem, 12vw, 10rem);
+  }
+
+  .profile__hero {
+    padding: clamp(7rem, 9vw, 8.5rem) 0 clamp(2rem, 4vw, 3rem);
+    background:
+      radial-gradient(circle at 80% 15%, var(--color-burgundy-100), transparent 35%),
+      var(--color-surface);
+    border-bottom: 1px solid var(--color-stone);
+  }
+
+  .profile__hero-inner,
+  .profile__body {
+    width: min(68rem, calc(100% - 2rem));
+    margin-inline: auto;
+  }
+
+  .profile__hero-inner {
+    display: grid;
+    grid-template-columns: clamp(6.5rem, 13vw, 9rem) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+  }
+
+  .profile__monogram {
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--color-stone);
+    border-radius: 50%;
+    background: var(--color-canvas);
+    color: var(--color-burgundy-700);
+    font-family: var(--font-serif);
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-style: italic;
+  }
+
+  .profile__eyebrow {
+    margin: 0 0 1rem;
+    color: var(--color-burgundy-700);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2.75rem, 6vw, 5rem);
+    line-height: 0.92;
+    letter-spacing: var(--tracking-display);
+    overflow-wrap: anywhere;
+  }
+
+  .profile__credentials {
+    margin: 0.85rem 0 0;
+    color: var(--color-burgundy-700);
+    font-size: clamp(1rem, 2.4vw, 1.35rem);
+    font-weight: 760;
+    overflow-wrap: anywhere;
+  }
+
+  .profile__summary {
+    max-width: 48rem;
+    margin: 1.6rem 0 0;
+    color: var(--color-ink-muted);
+    font-size: clamp(1rem, 2vw, 1.2rem);
+  }
+
+  .profile__body {
+    padding-top: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .profile__back {
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-burgundy-700);
+    font-weight: 750;
+    text-underline-offset: 0.25rem;
+  }
+
+  .profile__notice,
+  .profile__pending {
+    margin-top: 2.5rem;
+    padding: 1.2rem 1.4rem;
+    border-left: 0.22rem solid var(--color-burgundy-600);
+    background: var(--color-burgundy-100);
+  }
+
+  .profile__body > section,
+  .profile__columns {
+    margin-top: clamp(3.5rem, 7vw, 6rem);
+  }
+
+  .profile__body > .profile__biography,
+  .profile__body > .profile__pending {
+    margin-top: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .profile__columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2rem, 7vw, 6rem);
+  }
+
+  h2 {
+    margin: 0 0 1.3rem;
+    font-size: clamp(1.6rem, 4vw, 2.5rem);
+    line-height: 1.1;
+    letter-spacing: var(--tracking-display);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  li + li {
+    margin-top: 0.65rem;
+  }
+
+  .profile__practice-list {
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-stone);
+  }
+
+  .profile__practice-list li {
+    min-width: 0;
+    margin: 0;
+    padding: 1rem 1rem 1rem 0;
+    border-bottom: 1px solid var(--color-stone);
+    overflow-wrap: anywhere;
+  }
+
+  .profile__pending h2,
+  .profile__pending p {
+    margin: 0;
+  }
+
+  .profile__pending p {
+    margin-top: 0.7rem;
+  }
+
+  @media (max-width: 42rem) {
+    .profile__hero-inner {
+      grid-template-columns: 1fr;
+    }
+
+    .profile__monogram {
+      width: 8rem;
+    }
+
+    .profile__columns,
+    .profile__practice-list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

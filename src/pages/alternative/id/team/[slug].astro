@@ -1,0 +1,28 @@
+---
+import AlternativeTeamProfile from '../../../../components/alternative/AlternativeTeamProfile.astro';
+import { getAlternativeContent } from '../../../../content/alternative';
+import {
+  getAlternativeProfileLabels,
+  getAlternativeTeam,
+  getAlternativeTeamPaths,
+  type AlternativeTeamMember,
+} from '../../../../content/alternative-team';
+import AlternativeLayout from '../../../../layouts/AlternativeLayout.astro';
+
+export function getStaticPaths() {
+  return getAlternativeTeamPaths()
+    .filter(({ locale }) => locale === 'id')
+    .map(({ member }) => ({ params: { slug: member.slug }, props: { member } }));
+}
+
+const { member } = Astro.props as { member: AlternativeTeamMember };
+const content = getAlternativeContent('id');
+const members = getAlternativeTeam('id');
+const labels = getAlternativeProfileLabels('id');
+const index = members.findIndex((profile) => profile.slug === member.slug);
+---
+
+<AlternativeLayout lang="id" title={`${member.name} — Wijaya & Partners`} description={member.summary}>
+  <div class="concept-ribbon"><span>{content.previewLabel}</span></div>
+  <AlternativeTeamProfile {content} {member} {members} {labels} {index} />
+</AlternativeLayout>

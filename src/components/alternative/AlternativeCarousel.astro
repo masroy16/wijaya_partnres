@@ -1,0 +1,199 @@
+---
+import type { AlternativePageContent } from '../../content/alternative';
+
+interface Props {
+  content: AlternativePageContent;
+}
+
+const { content } = Astro.props;
+---
+
+<section class="story-carousel" aria-label={content.carousel.label} aria-roledescription="carousel" data-carousel>
+  <div class="story-carousel__progress" aria-hidden="true"><span data-progress></span></div>
+
+  <div class="story-carousel__slides" data-slides>
+    {content.slides.map((slide, index) => (
+      <article
+        class:list={['story-slide', `story-slide--${slide.id}`, { 'is-active': index === 0 }]}
+        data-slide
+        data-slide-id={slide.id}
+        role="group"
+        aria-roledescription="slide"
+        aria-label={`${index + 1} / ${content.slides.length}`}
+      >
+        <img class="story-slide__image" src={slide.image} alt={slide.imageAlt} width="2048" height="768" fetchpriority={index === 0 ? 'high' : 'auto'} />
+        <div class="story-slide__veil"></div>
+        <div class="story-slide__grid">
+          <div class="story-slide__index" aria-hidden="true">0{index + 1}</div>
+          <div class="story-slide__copy">
+            <p class="eyebrow">{slide.eyebrow}</p>
+            <h1 class:list={{ 'story-slide__title': true, 'story-slide__title--compact': slide.id !== 'hero' }}>{slide.title}</h1>
+            <p class="story-slide__body">{slide.body}</p>
+            {slide.items.length > 0 && (
+              <ul class="story-slide__items">
+                {slide.items.map((item, itemIndex) => <li><span>0{itemIndex + 1}</span>{item}</li>)}
+              </ul>
+            )}
+            {slide.cta && <a class="text-link" href={slide.cta.href}>{slide.cta.label}<span aria-hidden="true">↗</span></a>}
+          </div>
+          <p class="story-slide__mood">{slide.mood}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <div class="story-carousel__controls">
+    <div class="story-carousel__arrows">
+      <button type="button" class="carousel-button" data-previous aria-label={content.carousel.previous}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <button type="button" class="carousel-button" data-next aria-label={content.carousel.next}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+    <div class="story-carousel__dots" role="group" aria-label="Carousel position">
+      {content.slides.map((slide, index) => (
+        <button type="button" class:list={['carousel-dot', { 'is-active': index === 0 }]} data-slide-to={index} aria-label={`${content.carousel.slideLabel} ${index + 1}: ${slide.eyebrow}`} aria-current={index === 0 ? 'true' : undefined}><span></span></button>
+      ))}
+    </div>
+    <button type="button" class="carousel-pause" data-pause aria-label={content.carousel.pause} data-pause-label={content.carousel.pause} data-resume-label={content.carousel.resume} aria-pressed="false">
+      <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7v10M15 7v10"/></svg>
+      <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5Z"/></svg>
+      <span data-pause-text>{content.carousel.pause.replace(' automatic slides', '').replace(' pergantian otomatis', '')}</span>
+    </button>
+  </div>
+
+  <p class="sr-only" aria-live="polite" aria-atomic="true" data-carousel-status></p>
+</section>
+
+<script>
+  import {
+    canAutoAdvance,
+    nextSlide,
+    previousSlide,
+    wrapSlide,
+    type CarouselInteractionState,
+  } from '../../lib/carousel-state';
+
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((carousel) => {
+    const slides = [...carousel.querySelectorAll<HTMLElement>('[data-slide]')];
+    const dots = [...carousel.querySelectorAll<HTMLButtonElement>('[data-slide-to]')];
+    const previous = carousel.querySelector<HTMLButtonElement>('[data-previous]');
+    const next = carousel.querySelector<HTMLButtonElement>('[data-next]');
+    const pause = carousel.querySelector<HTMLButtonElement>('[data-pause]');
+    const pauseText = carousel.querySelector<HTMLElement>('[data-pause-text]');
+    const status = carousel.querySelector<HTMLElement>('[data-carousel-status]');
+    const progress = carousel.querySelector<HTMLElement>('[data-progress]');
+    const reducedMotionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+
+    const state: CarouselInteractionState = {
+      manuallyPaused: false,
+      hovered: false,
+      focusWithin: false,
+      touching: false,
+      documentHidden: document.hidden,
+      reducedMotion: reducedMotionQuery.matches,
+    };
+
+    let current = 0;
+    let touchStartX = 0;
+    let touchCurrentX = 0;
+
+    const render = (requestedIndex: number, announce = true) => {
+      current = wrapSlide(requestedIndex, slides.length);
+      slides.forEach((slide, index) => {
+        const active = index === current;
+        slide.classList.toggle('is-active', active);
+        slide.setAttribute('aria-hidden', String(!active));
+        slide.toggleAttribute('inert', !active);
+      });
+      dots.forEach((dot, index) => {
+        const active = index === current;
+        dot.classList.toggle('is-active', active);
+        if (active) dot.setAttribute('aria-current', 'true');
+        else dot.removeAttribute('aria-current');
+      });
+      carousel.style.setProperty('--active-slide', String(current));
+      if (announce && status) status.textContent = slides[current]?.getAttribute('aria-label') ?? '';
+      if (progress) {
+        progress.classList.remove('is-running');
+        void progress.offsetWidth;
+        progress.classList.toggle('is-running', canAutoAdvance(state));
+      }
+    };
+
+    const refreshProgress = () => {
+      if (!progress) return;
+      progress.classList.remove('is-running');
+      if (canAutoAdvance(state)) {
+        void progress.offsetWidth;
+        progress.classList.add('is-running');
+      }
+    };
+
+    const setManualPause = (paused: boolean) => {
+      state.manuallyPaused = paused;
+      pause?.setAttribute('aria-pressed', String(paused));
+      pause?.setAttribute('aria-label', paused ? pause.dataset.resumeLabel ?? '' : pause.dataset.pauseLabel ?? '');
+      carousel.toggleAttribute('data-paused', paused);
+      if (pauseText) pauseText.textContent = paused ? (pause.dataset.resumeLabel?.split(' ')[0] ?? 'Resume') : (pause.dataset.pauseLabel?.split(' ')[0] ?? 'Pause');
+      refreshProgress();
+    };
+
+    carousel.dataset.enhanced = 'true';
+    render(0, false);
+
+    previous?.addEventListener('click', () => render(previousSlide(current, slides.length)));
+    next?.addEventListener('click', () => render(nextSlide(current, slides.length)));
+    pause?.addEventListener('click', () => setManualPause(!state.manuallyPaused));
+    dots.forEach((dot) => dot.addEventListener('click', () => render(Number(dot.dataset.slideTo))));
+
+    carousel.addEventListener('mouseenter', () => { state.hovered = true; refreshProgress(); });
+    carousel.addEventListener('mouseleave', () => { state.hovered = false; refreshProgress(); });
+    carousel.addEventListener('focusin', () => { state.focusWithin = true; refreshProgress(); });
+    carousel.addEventListener('focusout', () => {
+      requestAnimationFrame(() => {
+        state.focusWithin = carousel.contains(document.activeElement);
+        refreshProgress();
+      });
+    });
+
+    carousel.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'touch') {
+        state.touching = true;
+        touchStartX = event.clientX;
+        touchCurrentX = event.clientX;
+        refreshProgress();
+      }
+    });
+    carousel.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'touch' && state.touching) touchCurrentX = event.clientX;
+    });
+    const finishTouch = (endX: number) => {
+      const distance = endX - touchStartX;
+      if (Math.abs(distance) > 45) render(distance < 0 ? nextSlide(current, slides.length) : previousSlide(current, slides.length));
+      state.touching = false;
+      refreshProgress();
+    };
+    carousel.addEventListener('pointerup', (event) => {
+      if (event.pointerType !== 'touch') return;
+      finishTouch(event.clientX);
+    });
+    carousel.addEventListener('pointercancel', () => {
+      if (state.touching) finishTouch(touchCurrentX);
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      state.documentHidden = document.hidden;
+      refreshProgress();
+    });
+    reducedMotionQuery.addEventListener('change', (event) => {
+      state.reducedMotion = event.matches;
+      refreshProgress();
+    });
+
+    window.setInterval(() => {
+      if (canAutoAdvance(state)) render(nextSlide(current, slides.length), false);
+    }, 6500);
+  });
+</script>

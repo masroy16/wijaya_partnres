@@ -1,0 +1,79 @@
+---
+import type { AlternativePageContent } from '../../content/alternative';
+import type { AlternativeProfileLabels, AlternativeTeamMember } from '../../content/alternative-team';
+import AlternativeHeader from './AlternativeHeader.astro';
+
+interface Props {
+  content: AlternativePageContent;
+  member: AlternativeTeamMember;
+  members: readonly AlternativeTeamMember[];
+  labels: AlternativeProfileLabels;
+  index: number;
+}
+
+const { content, member, members, labels, index } = Astro.props;
+const homeHref = content.locale === 'en' ? '/alternative/' : '/alternative/id/';
+const profileBaseHref = `${homeHref}team/`;
+const previous = members[(index - 1 + members.length) % members.length]!;
+const next = members[(index + 1) % members.length]!;
+---
+
+<AlternativeHeader content={content} profileSlug={member.slug} />
+
+<main id="main-content" class="profile-page">
+  <header class="profile-intro">
+    <div class="profile-intro__index" aria-hidden="true">{String(index + 1).padStart(2, '0')} / 06</div>
+    <div class="profile-intro__heading">
+      <p class="eyebrow">{labels.counselProfile}</p>
+      <h1>{member.name}</h1>
+      <p class="profile-intro__credentials">{member.credentials}</p>
+    </div>
+    <div class="profile-intro__summary">
+      <p>{member.summary}</p>
+      <a class="text-link" href={`${homeHref}#team`}>{labels.backToTeam} <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <div class="profile-body">
+    <aside class="profile-identity" aria-label={`${member.name} profile status`}>
+      <div class="profile-monogram" aria-hidden="true">{member.initials}</div>
+      <p class="profile-identity__country">{member.country}</p>
+      <p class="profile-status"><strong>{member.statusLabel}</strong><span>{member.statusNote}</span></p>
+      <a class="profile-contact-link" href={`${homeHref}#contact`}>{labels.contact} <span aria-hidden="true">↗</span></a>
+    </aside>
+
+    <article class="profile-details">
+      <section class="profile-section profile-section--biography">
+        <p class="profile-section__number" aria-hidden="true">01</p>
+        <div><h2>{labels.biography}</h2>{member.biography.map((paragraph) => <p>{paragraph}</p>)}</div>
+      </section>
+      <section class="profile-section profile-section--education">
+        <p class="profile-section__number" aria-hidden="true">02</p>
+        <div><h2>{labels.education}</h2><ul>{member.education.map((item) => <li>{item}</li>)}</ul></div>
+      </section>
+      <section class="profile-section profile-section--organizations">
+        <p class="profile-section__number" aria-hidden="true">03</p>
+        <div><h2>{labels.organizations}</h2><ul>{member.organizations.map((item) => <li>{item}</li>)}</ul></div>
+      </section>
+      <section class="profile-section profile-section--practice">
+        <p class="profile-section__number" aria-hidden="true">04</p>
+        <div><h2>{labels.practiceAreas}</h2><ul class="profile-practices">{member.practiceAreas.map((item) => <li>{item}</li>)}</ul></div>
+      </section>
+    </article>
+  </div>
+
+  <nav class="profile-pagination" aria-label="Team profiles">
+    <a href={`${profileBaseHref}${previous.slug}/`} aria-label={`${labels.previous}: ${previous.name}`}>
+      <span>{labels.previous}</span><strong>← {previous.name}</strong>
+    </a>
+    <a href={`${profileBaseHref}${next.slug}/`} aria-label={`${labels.next}: ${next.name}`}>
+      <span>{labels.next}</span><strong>{next.name} →</strong>
+    </a>
+  </nav>
+</main>
+
+<footer class="site-footer">
+  <div><strong>WIJAYA &amp; PARTNERS</strong></div>
+  <p>{content.footer.disclaimer}</p>
+  <p>{content.footer.copyright}</p>
+</footer>

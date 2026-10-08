@@ -1,0 +1,93 @@
+---
+import type { HomeContent, Locale, TeamMember } from '../../i18n/types';
+import TeamCard from '../team/TeamCard.astro';
+
+interface Props {
+  locale: Locale;
+  content: HomeContent['team'];
+  members: readonly TeamMember[];
+}
+
+const { locale, content, members } = Astro.props;
+const eyebrow = locale === 'id' ? 'Orang-orang kami' : 'Our people';
+---
+
+<section id="team" class="team" aria-labelledby="team-title" data-section-reveal>
+  <div class="team__heading" data-section-content>
+    <div>
+      <p class="eyebrow">{eyebrow}</p>
+      <h2 id="team-title">{content.headline}</h2>
+    </div>
+    <p>{content.introduction}</p>
+  </div>
+  <div class="team__grid" data-section-content>
+    {members.map((member) => <TeamCard member={member} />)}
+  </div>
+</section>
+
+<style>
+  .team {
+    padding-block: clamp(7rem, 12vw, 11rem);
+    background: var(--color-canvas);
+  }
+
+  .team__heading,
+  .team__grid {
+    width: min(var(--content-width), calc(100% - 2rem));
+    margin-inline: auto;
+  }
+
+  .team__heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.55fr);
+    align-items: end;
+    gap: 3rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 1.25rem;
+    color: var(--color-burgundy-700);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    max-width: 14ch;
+    margin: 0;
+    font-size: clamp(2.8rem, 6vw, 6rem);
+    line-height: 0.96;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .team__heading > p {
+    margin: 0 0 0.35rem;
+    color: var(--color-ink-muted);
+    font-size: 1.1rem;
+  }
+
+  .team__grid {
+    margin-top: clamp(3rem, 7vw, 5.5rem);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 56rem) {
+    .team__heading {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .team__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 36rem) {
+    .team__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

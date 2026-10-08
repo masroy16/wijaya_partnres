@@ -1,0 +1,108 @@
+---
+import { CONTACT } from '../../content/contact';
+import type { HomeContent, Locale } from '../../i18n/types';
+import ContactItem from '../contact/ContactItem.astro';
+
+interface Props {
+  locale: Locale;
+  content: HomeContent['contact'];
+}
+
+const { locale, content } = Astro.props;
+const eyebrow = locale === 'id' ? 'Mulai percakapan' : 'Start a conversation';
+const draftLabel = locale === 'id' ? 'Detail kontak draft · mohon konfirmasi' : 'Draft contact details · confirmation required';
+const whatsappValue = locale === 'id' ? `WhatsApp · ${CONTACT.phoneDisplay}` : `WhatsApp · ${CONTACT.phoneDisplay}`;
+---
+
+<section id="contact" class="contact" aria-labelledby="contact-title" data-section-reveal>
+  <div class="contact__grid" data-section-content>
+    <div class="contact__intro">
+      <p class="eyebrow">{eyebrow}</p>
+      <h2 id="contact-title">{content.headline}</h2>
+      <p>{content.introduction}</p>
+      <span>{draftLabel}</span>
+    </div>
+    <div class="contact__items">
+      <ContactItem icon="email" label={content.labels.email} value={CONTACT.email} href={CONTACT.emailHref} />
+      <ContactItem icon="phone" label={content.labels.phone} value={CONTACT.phoneDisplay} href={CONTACT.phoneHref} />
+      <ContactItem icon="whatsapp" label={content.labels.whatsapp} value={whatsappValue} href={CONTACT.whatsappHref} external />
+      <ContactItem icon="hours" label={content.labels.hours} value={CONTACT.hours} />
+      <ContactItem
+        icon="address"
+        label={content.labels.address}
+        value={CONTACT.address}
+        href={CONTACT.mapUrl}
+        external
+        linkLabel={content.labels.map}
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact {
+    padding-block: clamp(7rem, 12vw, 11rem);
+    background:
+      radial-gradient(circle at 8% 90%, rgb(146 42 49 / 35%), transparent 32%),
+      #151212;
+    color: #fff;
+  }
+
+  .contact__grid {
+    width: min(var(--content-width), calc(100% - 2rem));
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(28rem, 1.1fr);
+    gap: clamp(4rem, 10vw, 10rem);
+  }
+
+  .contact__intro {
+    position: sticky;
+    top: 9rem;
+    align-self: start;
+  }
+
+  .eyebrow {
+    margin: 0 0 1.25rem;
+    color: #ef7a7e;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    max-width: 11ch;
+    margin: 0;
+    font-size: clamp(3rem, 7vw, 6.8rem);
+    line-height: 0.92;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .contact__intro > p:not(.eyebrow) {
+    max-width: 38rem;
+    margin-top: 1.8rem;
+    color: rgb(255 255 255 / 72%);
+    font-size: 1.12rem;
+  }
+
+  .contact__intro > span {
+    margin-top: 1.5rem;
+    display: inline-block;
+    color: rgb(255 255 255 / 50%);
+    font-size: 0.72rem;
+    font-weight: 780;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 56rem) {
+    .contact__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .contact__intro {
+      position: static;
+    }
+  }
+</style>
