@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getHomeContent } from '../../content/home';
+import type { Locale, SectionId } from '../../i18n/types';
+import HeroSection from '../../components/sections/HeroSection.astro';
+import LegacySection from '../../components/sections/LegacySection.astro';
+import ExpertiseSection from '../../components/sections/ExpertiseSection.astro';
+import EthicsSection from '../../components/sections/EthicsSection.astro';
+import TeamSection from '../../components/sections/TeamSection.astro';
+import { getTeamMembers } from '../../content/team';
+import ClientsSection from '../../components/sections/ClientsSection.astro';
+import { CLIENTS } from '../../content/clients';
+import ContactSection from '../../components/sections/ContactSection.astro';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'id' } }, { params: { lang: 'en' } }];
+}
+
+const locale = Astro.params.lang as Locale;
+const content = getHomeContent(locale);
+const teamMembers = getTeamMembers(locale);
+const pathname = `/${locale}/`;
+const remainingSections: ReadonlyArray<{
+  id: Exclude<SectionId, 'hero' | 'legacy' | 'expertise' | 'ethics'>;
+  headline: string;
+  body: string;
+}> = [
+];
+---
+
+<BaseLayout
+  locale={locale}
+  title={content.meta.title}
+  description={content.meta.description}
+  pathname={pathname}
+>
+  <main id="main-content" tabindex="-1">
+    <HeroSection locale={locale} content={content.hero} />
+    <LegacySection locale={locale} content={content.legacy} />
+    <ExpertiseSection locale={locale} content={content.expertise} />
+    <EthicsSection locale={locale} content={content.ethics} />
+    <TeamSection locale={locale} content={content.team} members={teamMembers} />
+    <ClientsSection locale={locale} content={content.clients} clients={CLIENTS} />
+    <ContactSection locale={locale} content={content.contact} />
+
+    {remainingSections.map(({ id, headline, body }) => (
+      <section id={id} class="shell-section" aria-labelledby={`${id}-title`}>
+        <h2 id={`${id}-title`}>{headline}</h2>
+        <p>{body}</p>
+      </section>
+    ))}
+  </main>
+</BaseLayout>

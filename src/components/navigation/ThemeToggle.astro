@@ -1,0 +1,102 @@
+---
+import type { Locale } from '../../i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const lightLabel = locale === 'id' ? 'Gunakan tema terang' : 'Use light theme';
+const darkLabel = locale === 'id' ? 'Gunakan tema gelap' : 'Use dark theme';
+---
+
+<button
+  class="theme-toggle"
+  type="button"
+  data-theme-toggle
+  data-light-label={lightLabel}
+  data-dark-label={darkLabel}
+  aria-label={darkLabel}
+  title={darkLabel}
+>
+  <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M20.4 14.2A8.4 8.4 0 0 1 9.8 3.6 8.5 8.5 0 1 0 20.4 14.2Z"></path>
+  </svg>
+  <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="3.5"></circle>
+    <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+  </svg>
+</button>
+
+<script>
+  const storageKey = 'wp-theme';
+  const toggles = document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]');
+
+  function currentTheme(): 'light' | 'dark' {
+    return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+  }
+
+  function updateToggle(toggle: HTMLButtonElement, theme: 'light' | 'dark') {
+    const nextLabel = theme === 'dark' ? toggle.dataset.lightLabel : toggle.dataset.darkLabel;
+    if (!nextLabel) return;
+    toggle.setAttribute('aria-label', nextLabel);
+    toggle.title = nextLabel;
+    toggle.setAttribute('aria-pressed', String(theme === 'dark'));
+  }
+
+  function applyTheme(theme: 'light' | 'dark', persist = false) {
+    document.documentElement.dataset.theme = theme;
+    toggles.forEach((toggle) => updateToggle(toggle, theme));
+    if (!persist) return;
+    try {
+      localStorage.setItem(storageKey, theme);
+    } catch {
+      // Theme switching remains useful when storage is blocked.
+    }
+  }
+
+  toggles.forEach((toggle) => {
+    updateToggle(toggle, currentTheme());
+    toggle.addEventListener('click', () => {
+      applyTheme(currentTheme() === 'dark' ? 'light' : 'dark', true);
+    });
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid var(--color-stone);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--color-burgundy-600);
+    color: var(--color-burgundy-700);
+  }
+
+  .theme-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .theme-icon--sun,
+  :global(:root[data-theme='dark']) .theme-icon--moon {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .theme-icon--sun {
+    display: block;
+  }
+</style>

@@ -1,0 +1,73 @@
+---
+import { SITE } from '../config/site';
+
+const title = `${SITE.name} — Language`;
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title}</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        background: #f6f3ef;
+        color: #161312;
+      }
+
+      body {
+        min-height: 100svh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+      }
+
+      main {
+        width: min(34rem, calc(100% - 2rem));
+        text-align: center;
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: 2rem;
+      }
+
+      a {
+        min-height: 2.75rem;
+        padding: 0 1.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        color: inherit;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      a[aria-current='true'] {
+        background: #8a1f24;
+        border-color: #8a1f24;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p>Concept Preview</p>
+      <h1>{SITE.name}</h1>
+      <p>Pilih bahasa untuk melanjutkan. Choose a language to continue.</p>
+      <nav aria-label="Pilihan bahasa / Language selection">
+        <a href="/id/" lang="id" aria-current="true">Bahasa Indonesia</a>
+        <a href="/en/" lang="en">English</a>
+      </nav>
+    </main>
+  </body>
+</html>

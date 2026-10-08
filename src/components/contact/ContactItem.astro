@@ -1,0 +1,101 @@
+---
+interface Props {
+  icon: 'email' | 'phone' | 'whatsapp' | 'hours' | 'address';
+  label: string;
+  value: string;
+  href?: string;
+  external?: boolean;
+  linkLabel?: string;
+}
+
+const { icon, label, value, href, external = false, linkLabel } = Astro.props;
+const pathByIcon = {
+  email: 'M3 6.5 12 13l9-6.5M4.5 5h15A1.5 1.5 0 0 1 21 6.5v11A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-11A1.5 1.5 0 0 1 4.5 5Z',
+  phone: 'M7.3 3.5 10 8 7.8 10.2c1.2 2.7 3.3 4.8 6 6l2.2-2.2 4.5 2.7-1 3.2c-.3 1-1.3 1.6-2.4 1.4C9.8 20.2 3.8 14.2 2.8 6.9c-.2-1 .4-2 1.4-2.4l3.1-1Z',
+  whatsapp: 'M20 11.6a8 8 0 0 1-11.8 7l-4.2 1.1 1.1-4A8 8 0 1 1 20 11.6Zm-11.5-4c.2-.4.4-.4.7-.4h.6c.2 0 .4.1.5.4l.8 2c.1.3 0 .5-.2.7l-.6.7c.8 1.7 2.1 3 3.8 3.8l.7-.8c.2-.2.4-.3.7-.2l1.9.9c.3.1.4.3.4.6 0 .4-.2 1.3-.7 1.8-.5.5-1.4.8-2.2.6-4.8-.9-8.7-4.8-9.6-9.6-.2-.8.1-1.7.6-2.2.5-.5 1.4-.7 1.8-.7.3 0 .5.1.6.4Z',
+  hours: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18Zm0 4v5l3.2 2',
+  address: 'M12 21s6-5.5 6-12a6 6 0 1 0-12 0c0 6.5 6 12 6 12Zm0-9a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z',
+} as const;
+---
+
+<article class="contact-item">
+  <span class="contact-item__icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d={pathByIcon[icon]}></path></svg>
+  </span>
+  <div>
+    <h3>{label}</h3>
+    {href ? (
+      <a
+        href={href}
+        aria-label={linkLabel || undefined}
+        target={external ? '_blank' : undefined}
+        rel={external ? 'noopener noreferrer' : undefined}
+      >{value}</a>
+    ) : (
+      <p>{value}</p>
+    )}
+    {linkLabel && href && <span class="contact-item__link-label">{linkLabel} ↗</span>}
+  </div>
+</article>
+
+<style>
+  .contact-item {
+    min-width: 0;
+    padding-block: 1.5rem;
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: 1rem;
+    border-top: 1px solid rgb(255 255 255 / 18%);
+  }
+
+  .contact-item__icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgb(255 255 255 / 28%);
+    border-radius: 50%;
+  }
+
+  svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  h3 {
+    margin: 0;
+    color: rgb(255 255 255 / 58%);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  a,
+  p {
+    margin: 0.35rem 0 0;
+    color: #fff;
+    font-size: clamp(1rem, 2.2vw, 1.2rem);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  a {
+    display: inline;
+    text-underline-offset: 0.25rem;
+    text-decoration-thickness: 0.08em;
+  }
+
+  .contact-item__link-label {
+    margin-top: 0.55rem;
+    display: block;
+    color: #ef9a9d;
+    font-size: 0.8rem;
+    font-weight: 760;
+  }
+</style>

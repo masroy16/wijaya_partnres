@@ -1,0 +1,160 @@
+---
+import type { ClientRecord, HomeContent, Locale } from '../../i18n/types';
+import ClientLogo from '../client/ClientLogo.astro';
+
+interface Props {
+  locale: Locale;
+  content: HomeContent['clients'];
+  clients: readonly ClientRecord[];
+}
+
+const { locale, content, clients } = Astro.props;
+const eyebrow = locale === 'id' ? 'Kemitraan tepercaya' : 'Trusted partnerships';
+const draftLabel = locale === 'id' ? 'Daftar draft · menunggu izin publikasi' : 'Draft list · publication approval pending';
+---
+
+<section id="clients" class="clients" aria-labelledby="clients-title" data-clients-section data-section-reveal>
+  <div class="clients__heading" data-section-content>
+    <p class="eyebrow">{eyebrow}</p>
+    <h2 id="clients-title">{content.headline}</h2>
+    <p class="clients__intro">{content.introduction}</p>
+    <p class="clients__draft">{draftLabel}</p>
+  </div>
+
+  <div id="client-portfolio" class="clients__grid" data-section-content>
+    {clients.map((client) => <ClientLogo client={client} />)}
+  </div>
+
+  <button
+    class="clients__toggle"
+    type="button"
+    aria-controls="client-portfolio"
+    aria-expanded="false"
+    data-clients-toggle
+    data-expand-label={content.expandLabel}
+    data-collapse-label={content.collapseLabel}
+    data-section-content
+    hidden
+  >
+    <span data-clients-toggle-label>{content.expandLabel}</span>
+    <span aria-hidden="true">↓</span>
+  </button>
+</section>
+
+<script>
+  const section = document.querySelector<HTMLElement>('[data-clients-section]');
+  const toggle = section?.querySelector<HTMLButtonElement>('[data-clients-toggle]');
+  const extras = section?.querySelectorAll<HTMLElement>('[data-client-extra]');
+
+  if (toggle && extras?.length) {
+    extras.forEach((item) => { item.hidden = true; });
+    toggle.hidden = false;
+    toggle.addEventListener('click', () => {
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      extras.forEach((item) => { item.hidden = !expanded ? false : true; });
+      toggle.setAttribute('aria-expanded', String(!expanded));
+      const label = !expanded ? toggle.dataset.collapseLabel : toggle.dataset.expandLabel;
+      const labelNode = toggle.querySelector('[data-clients-toggle-label]');
+      if (label && labelNode) labelNode.textContent = label;
+    });
+  }
+</script>
+
+<style>
+  .clients {
+    padding-block: clamp(7rem, 12vw, 11rem);
+    background: var(--color-surface);
+  }
+
+  .clients__heading,
+  .clients__grid,
+  .clients__toggle {
+    width: min(var(--content-width), calc(100% - 2rem));
+    margin-inline: auto;
+  }
+
+  .clients__heading {
+    text-align: center;
+  }
+
+  .eyebrow,
+  .clients__draft {
+    margin: 0;
+    color: var(--color-burgundy-700);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    max-width: 18ch;
+    margin: 1.25rem auto 0;
+    font-size: clamp(2.8rem, 6vw, 6rem);
+    line-height: 0.96;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .clients__intro {
+    max-width: 48rem;
+    margin: 1.6rem auto 0;
+    color: var(--color-ink-muted);
+    font-size: 1.1rem;
+  }
+
+  .clients__draft {
+    margin-top: 1.5rem;
+    color: var(--color-ink-muted);
+    letter-spacing: 0.08em;
+  }
+
+  .clients__grid {
+    margin-top: clamp(3rem, 7vw, 5rem);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .clients__toggle {
+    min-height: 3.25rem;
+    margin-top: 2rem;
+    padding-inline: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    border: 1px solid var(--color-stone);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-ink);
+    font-weight: 760;
+    cursor: pointer;
+  }
+
+  .clients__toggle[hidden] {
+    display: none;
+  }
+
+  .clients__toggle:hover {
+    border-color: var(--color-burgundy-600);
+    color: var(--color-burgundy-700);
+  }
+
+  @media (max-width: 58rem) {
+    .clients__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .clients__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 23rem) {
+    .clients__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

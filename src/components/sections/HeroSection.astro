@@ -1,0 +1,206 @@
+---
+import { Image } from 'astro:assets';
+import firmLogo from '../../assets/brand/wijaya-partners-logo.png';
+import heroImage from '../../assets/sections/hero-gedung-merdeka.jpeg';
+import type { HomeContent, Locale } from '../../i18n/types';
+
+interface Props {
+  locale: Locale;
+  content: HomeContent['hero'];
+}
+
+const { locale, content } = Astro.props;
+const eyebrow = locale === 'id' ? 'Kantor hukum · Bandung · Sejak 1988' : 'Law firm · Bandung · Since 1988';
+---
+
+<section id="hero" class="hero" aria-labelledby="hero-title" data-section-reveal>
+  <Image
+    class="hero__image"
+    src={heroImage}
+    alt=""
+    widths={[640, 960, 1280]}
+    sizes="100vw"
+    format="webp"
+    quality={82}
+    loading="eager"
+    fetchpriority="high"
+    data-narrative-image
+  />
+  <div class="hero__overlay" aria-hidden="true"></div>
+  <div class="hero__content" data-section-content>
+    <div class="hero__brand">
+      <span class="brand-lockup">
+        <Image
+          src={firmLogo}
+          alt="Wijaya & Partners"
+          width={160}
+          height={163}
+          format="webp"
+          quality={90}
+          data-brand-lockup
+        />
+        <Image
+          class="brand-lockup__contrast"
+          src={firmLogo}
+          alt=""
+          aria-hidden="true"
+          width={160}
+          height={163}
+          format="webp"
+          quality={90}
+          data-brand-lockup-contrast
+        />
+      </span>
+      <p>{eyebrow}</p>
+    </div>
+    <h1 id="hero-title">Absolute Loyalty. <span>Strategic Action.</span></h1>
+    <p class="hero__body">{content.body}</p>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: max(45rem, 100svh);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    isolation: isolate;
+    background: #e9e3db;
+    color: #171414;
+  }
+
+  .hero__image,
+  .hero__overlay {
+    position: absolute;
+    z-index: -2;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__image {
+    object-position: center;
+  }
+
+  .hero__overlay {
+    z-index: -1;
+    background:
+      linear-gradient(90deg, rgb(247 244 239 / 88%) 0%, rgb(247 244 239 / 70%) 52%, rgb(247 244 239 / 38%) 100%),
+      linear-gradient(0deg, rgb(247 244 239 / 55%) 0%, transparent 42%);
+  }
+
+  .hero__content {
+    width: min(var(--content-width), calc(100% - 2rem));
+    padding-block: 11rem 6rem;
+  }
+
+  .hero__brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .brand-lockup {
+    width: clamp(6rem, 9vw, 8.5rem);
+    display: grid;
+    flex: 0 0 auto;
+    filter: drop-shadow(0 0.4rem 0.9rem rgb(0 0 0 / 12%));
+  }
+
+  .brand-lockup :global(img) {
+    width: 100%;
+    height: auto;
+    grid-area: 1 / 1;
+    object-fit: contain;
+  }
+
+  .brand-lockup__contrast {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .hero__brand p {
+    margin: 0;
+    color: rgb(23 20 20 / 72%);
+    font-size: 0.76rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 13ch;
+    margin: clamp(2rem, 6vw, 4.5rem) 0 0;
+    font-size: clamp(3.5rem, 9vw, 8.5rem);
+    font-weight: 760;
+    line-height: 0.88;
+    letter-spacing: var(--tracking-display);
+  }
+
+  h1 span {
+    color: var(--color-burgundy-700);
+  }
+
+  .hero__body {
+    max-width: 48rem;
+    margin: 2rem 0 0;
+    color: rgb(23 20 20 / 78%);
+    font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+    line-height: 1.65;
+  }
+
+  :global(:root[data-theme='dark']) .hero {
+    background: #161414;
+    color: #fff;
+  }
+
+  :global(:root[data-theme='dark']) .hero__overlay {
+    background:
+      linear-gradient(90deg, rgb(8 8 9 / 90%) 0%, rgb(8 8 9 / 76%) 52%, rgb(8 8 9 / 64%) 100%),
+      linear-gradient(0deg, rgb(8 8 9 / 70%) 0%, transparent 42%);
+  }
+
+  :global(:root[data-theme='dark']) .hero__brand p {
+    color: rgb(255 255 255 / 76%);
+  }
+
+  :global(:root[data-theme='dark']) .brand-lockup {
+    filter: drop-shadow(0 0.35rem 0.9rem rgb(0 0 0 / 45%));
+  }
+
+  :global(:root[data-theme='dark']) .brand-lockup__contrast {
+    visibility: visible;
+    clip-path: inset(73% 0 0);
+    filter: brightness(0) invert(1) drop-shadow(0 0 0.08rem rgb(0 0 0 / 85%));
+  }
+
+  :global(:root[data-theme='dark']) .hero__body {
+    color: rgb(255 255 255 / 84%);
+  }
+
+  @media (min-width: 64rem) {
+    h1 {
+      font-size: 5.625rem;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .hero {
+      min-height: 52rem;
+    }
+
+    .hero__image {
+      object-position: 52% center;
+    }
+
+    .hero__content {
+      padding-top: 10rem;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 16vw, 5.25rem);
+    }
+  }
+</style>

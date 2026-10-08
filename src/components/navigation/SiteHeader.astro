@@ -1,0 +1,274 @@
+---
+import { Image } from 'astro:assets';
+import firmMark from '../../assets/brand/wijaya-partners-mark.png';
+import type { HomeContent, Locale, SectionId } from '../../i18n/types';
+import LocaleSwitcher from './LocaleSwitcher.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+interface Props {
+  locale: Locale;
+  pathname: string;
+  navigation: HomeContent['navigation'];
+}
+
+const { locale, pathname, navigation } = Astro.props;
+const navigationLabel = locale === 'id' ? 'Navigasi utama' : 'Primary navigation';
+const openLabel = locale === 'id' ? 'Buka menu' : 'Open menu';
+const closeLabel = locale === 'id' ? 'Tutup menu' : 'Close menu';
+const brandLabel = locale === 'id' ? 'Wijaya And Partners — Beranda' : 'Wijaya And Partners — Home';
+const homePath = `/${locale}/`;
+const onHomepage = pathname === homePath;
+const links: ReadonlyArray<{ id: SectionId; label: string }> = [
+  { id: 'legacy', label: navigation.legacy },
+  { id: 'expertise', label: navigation.expertise },
+  { id: 'ethics', label: navigation.ethics },
+  { id: 'team', label: navigation.team },
+  { id: 'clients', label: navigation.clients },
+  { id: 'contact', label: navigation.contact },
+];
+---
+
+<header class="site-header" data-site-header>
+  <div class="site-header__bar">
+    <a class="wordmark" href={`/${locale}/#hero`} aria-label={brandLabel}>
+      <Image
+        class="wordmark__mark"
+        src={firmMark}
+        alt=""
+        width={64}
+        height={63}
+        format="webp"
+        quality={88}
+        data-brand-mark
+      />
+      <span class="wordmark__name">Wijaya &amp; Partners</span>
+    </a>
+
+    <nav id="primary-navigation" class="primary-navigation" aria-label={navigationLabel} data-primary-navigation>
+      <ul>
+        {links.map(({ id, label }) => (
+          <li><a href={onHomepage ? `#${id}` : `${homePath}#${id}`}>{label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <LocaleSwitcher locale={locale} pathname={pathname} />
+      <ThemeToggle locale={locale} />
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-controls="primary-navigation"
+        aria-expanded="false"
+        aria-label={openLabel}
+        data-menu-toggle
+        data-open-label={openLabel}
+        data-close-label={closeLabel}
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const trigger = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const navigation = header?.querySelector<HTMLElement>('[data-primary-navigation]');
+
+  function setMenuState(open: boolean) {
+    if (!header || !trigger) return;
+    header.dataset.menuOpen = String(open);
+    trigger.setAttribute('aria-expanded', String(open));
+    const label = open ? trigger.dataset.closeLabel : trigger.dataset.openLabel;
+    if (label) trigger.setAttribute('aria-label', label);
+  }
+
+  trigger?.addEventListener('click', () => {
+    const open = trigger.getAttribute('aria-expanded') !== 'true';
+    setMenuState(open);
+    if (open) navigation?.querySelector<HTMLAnchorElement>('a')?.focus();
+  });
+
+  navigation?.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('a')) setMenuState(false);
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.matchMedia('(min-width: 64rem)').matches) setMenuState(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || trigger?.getAttribute('aria-expanded') !== 'true') return;
+    setMenuState(false);
+    trigger.focus();
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    z-index: 100;
+    top: 1rem;
+    width: min(var(--content-width), calc(100% - 1.25rem));
+    margin: 1rem auto -5.75rem;
+  }
+
+  .site-header__bar {
+    position: relative;
+    min-height: 4.75rem;
+    padding: 0.55rem 0.7rem 0.55rem 1rem;
+    display: grid;
+    grid-template-columns: minmax(0, auto) 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid color-mix(in srgb, var(--color-stone), transparent 20%);
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--color-surface), transparent 8%);
+    box-shadow: var(--shadow-floating);
+    backdrop-filter: blur(1rem);
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-weight: 780;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .wordmark__mark {
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: 0 0 auto;
+    object-fit: contain;
+  }
+
+  .wordmark__name {
+    max-width: 10rem;
+  }
+
+  .primary-navigation ul {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: clamp(0.2rem, 1vw, 1.25rem);
+    list-style: none;
+  }
+
+  .primary-navigation a {
+    min-height: 2.75rem;
+    padding-inline: 0.55rem;
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-ink-muted);
+    font-size: 0.87rem;
+    font-weight: 680;
+    text-decoration: none;
+  }
+
+  .primary-navigation a:hover {
+    color: var(--color-burgundy-700);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .menu-toggle {
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    display: none;
+    place-content: center;
+    gap: 0.27rem;
+    border: 1px solid var(--color-stone);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .menu-toggle span {
+    width: 1.05rem;
+    height: 0.1rem;
+    display: block;
+    border-radius: 1rem;
+    background: currentColor;
+    transition: transform var(--transition-fast), opacity var(--transition-fast);
+  }
+
+  @media (max-width: 63.99rem) {
+    .site-header__bar {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .wordmark__name {
+      display: none;
+    }
+
+    .primary-navigation {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      padding: 0.5rem 0.35rem 0.35rem;
+    }
+
+    .primary-navigation ul {
+      display: grid;
+      gap: 0.15rem;
+    }
+
+    .primary-navigation a {
+      width: 100%;
+      padding-inline: 0.85rem;
+      border-radius: 0.65rem;
+      font-size: 1rem;
+    }
+
+    .primary-navigation a:hover {
+      background: var(--color-burgundy-100);
+    }
+
+    :global(.js) .menu-toggle {
+      display: grid;
+    }
+
+    :global(.js) .primary-navigation {
+      display: none;
+    }
+
+    :global(.js) .site-header[data-menu-open='true'] .primary-navigation {
+      display: block;
+    }
+
+    :global(.js) .site-header[data-menu-open='true'] .site-header__bar {
+      border-radius: 2rem;
+    }
+
+    :global(.js) .site-header[data-menu-open='true'] .menu-toggle span:nth-child(1) {
+      transform: translateY(0.37rem) rotate(45deg);
+    }
+
+    :global(.js) .site-header[data-menu-open='true'] .menu-toggle span:nth-child(2) {
+      opacity: 0;
+    }
+
+    :global(.js) .site-header[data-menu-open='true'] .menu-toggle span:nth-child(3) {
+      transform: translateY(-0.37rem) rotate(-45deg);
+    }
+  }
+
+  @media (max-width: 27rem) {
+    .site-header {
+      width: calc(100% - 0.75rem);
+    }
+
+    .site-header__bar {
+      gap: 0.4rem;
+      padding-left: 0.75rem;
+    }
+  }
+</style>
