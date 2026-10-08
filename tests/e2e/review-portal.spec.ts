@@ -65,3 +65,13 @@ test('remains complete without JavaScript', async ({ browser }) => {
   await expectCompleteSelector(page);
   await context.close();
 });
+
+test('preview safety applies one noindex directive to every concept entry', async ({ page }) => {
+  for (const path of ['/', '/id/', '/en/', '/alternative/id/', '/alternative/']) {
+    const response = await page.goto(path);
+    expect(response?.status(), `${path} should return HTTP 200`).toBe(200);
+    const robots = page.locator('meta[name="robots"]');
+    await expect(robots).toHaveCount(1);
+    await expect(robots).toHaveAttribute('content', 'noindex, nofollow');
+  }
+});

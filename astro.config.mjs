@@ -1,4 +1,3 @@
-import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
@@ -6,5 +5,4 @@ export default defineConfig({
   site: 'https://wijaya-partners-concept-preview.netlify.app',
   trailingSlash: 'always',
   devToolbar: { enabled: false },
-  integrations: [sitemap()],
 });

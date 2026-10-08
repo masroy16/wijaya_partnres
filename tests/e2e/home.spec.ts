@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test';
 
+test('marks the primary concept as a non-indexable preview', async ({ page }) => {
+  await page.goto('/id/');
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(1);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+});
+
 const locales = [
   {
     path: '/id/',

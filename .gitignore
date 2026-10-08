@@ -5,4 +5,5 @@ coverage/
 playwright-report/
 test-results/
 .lighthouseci/
+.netlify/
 .DS_Store

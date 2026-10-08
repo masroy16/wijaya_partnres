@@ -1,5 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 
+test('marks the alternative concept as a non-indexable preview', async ({ page }) => {
+  await page.goto('/alternative/');
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(1);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+});
+
 const activeSlideId = async (page: Page) =>
   page.locator('[data-slide].is-active').getAttribute('data-slide-id');
 
