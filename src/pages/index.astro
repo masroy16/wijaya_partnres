@@ -1,73 +1,44 @@
 ---
-import { SITE } from '../config/site';
+import { Image } from 'astro:assets';
+import { REVIEW_CONCEPTS } from '../content/review';
+import ReviewLayout from '../layouts/ReviewLayout.astro';
 
-const title = `${SITE.name} — Language`;
+const title = 'Internal Design Review';
+const description = 'Pemilihan konsep internal untuk review desain Wijaya And Partners.';
 ---
 
-<!doctype html>
-<html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>{title}</title>
-    <style>
-      :root {
-        color-scheme: light dark;
-        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-        background: #f6f3ef;
-        color: #161312;
-      }
+<ReviewLayout {title} {description}>
+  <main class="review-portal__main">
+    <header class="review-portal__intro">
+      <p class="review-portal__eyebrow">Design review workspace</p>
+      <h1>Internal Design Review</h1>
+      <p class="review-portal__notice">
+        Halaman ini hanya untuk memilih konsep dan bukan bagian dari website Wijaya And Partners.
+      </p>
+    </header>
 
-      body {
-        min-height: 100svh;
-        margin: 0;
-        display: grid;
-        place-items: center;
-      }
-
-      main {
-        width: min(34rem, calc(100% - 2rem));
-        text-align: center;
-      }
-
-      nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.75rem;
-        margin-top: 2rem;
-      }
-
-      a {
-        min-height: 2.75rem;
-        padding: 0 1.25rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid currentColor;
-        border-radius: 999px;
-        color: inherit;
-        font-weight: 700;
-        text-decoration: none;
-      }
-
-      a[aria-current='true'] {
-        background: #8a1f24;
-        border-color: #8a1f24;
-        color: #fff;
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <p>Concept Preview</p>
-      <h1>{SITE.name}</h1>
-      <p>Pilih bahasa untuk melanjutkan. Choose a language to continue.</p>
-      <nav aria-label="Pilihan bahasa / Language selection">
-        <a href="/id/" lang="id" aria-current="true">Bahasa Indonesia</a>
-        <a href="/en/" lang="en">English</a>
-      </nav>
-    </main>
-  </body>
-</html>
+    <section class="review-portal__grid" aria-label="Pilihan konsep desain">
+      {REVIEW_CONCEPTS.map((concept) => (
+        <article class="review-card" data-review-card={concept.id}>
+          <div class="review-card__preview" data-review-thumbnail>
+            <Image
+              src={concept.thumbnail}
+              alt={concept.thumbnailAlt}
+              widths={[480, 720, 960]}
+              sizes="(min-width: 48rem) 42vw, 100vw"
+              loading="eager"
+            />
+          </div>
+          <div class="review-card__body">
+            <h2>{concept.title}</h2>
+            <div class="review-card__links" aria-label={`Buka ${concept.title}`}>
+              {concept.links.map((link) => (
+                <a href={link.href} lang={link.locale}>{link.label}</a>
+              ))}
+            </div>
+          </div>
+        </article>
+      ))}
+    </section>
+  </main>
+</ReviewLayout>
