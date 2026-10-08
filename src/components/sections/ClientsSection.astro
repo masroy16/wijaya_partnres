@@ -13,15 +13,15 @@ const eyebrow = locale === 'id' ? 'Kemitraan tepercaya' : 'Trusted partnerships'
 const draftLabel = locale === 'id' ? 'Daftar draft · menunggu izin publikasi' : 'Draft list · publication approval pending';
 ---
 
-<section id="clients" class="clients" aria-labelledby="clients-title" data-clients-section>
-  <div class="clients__heading">
+<section id="clients" class="clients" aria-labelledby="clients-title" data-clients-section data-section-reveal>
+  <div class="clients__heading" data-section-content>
     <p class="eyebrow">{eyebrow}</p>
     <h2 id="clients-title">{content.headline}</h2>
     <p class="clients__intro">{content.introduction}</p>
     <p class="clients__draft">{draftLabel}</p>
   </div>
 
-  <div id="client-portfolio" class="clients__grid">
+  <div id="client-portfolio" class="clients__grid" data-section-content>
     {clients.map((client) => <ClientLogo client={client} />)}
   </div>
 
@@ -33,6 +33,7 @@ const draftLabel = locale === 'id' ? 'Daftar draft · menunggu izin publikasi' :
     data-clients-toggle
     data-expand-label={content.expandLabel}
     data-collapse-label={content.collapseLabel}
+    data-section-content
     hidden
   >
     <span data-clients-toggle-label>{content.expandLabel}</span>
@@ -91,7 +92,7 @@ const draftLabel = locale === 'id' ? 'Daftar draft · menunggu izin publikasi' :
     margin: 1.25rem auto 0;
     font-size: clamp(2.8rem, 6vw, 6rem);
     line-height: 0.96;
-    letter-spacing: -0.06em;
+    letter-spacing: var(--tracking-display);
   }
 
   .clients__intro {

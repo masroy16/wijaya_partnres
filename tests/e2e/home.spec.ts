@@ -47,6 +47,79 @@ test.describe('narrative homepage', () => {
     await expect(page.locator('#ethics')).toContainText('Integrity and absolute loyalty');
     await context.close();
   });
+
+  test('uses relaxed tracking for every homepage display title', async ({ page }) => {
+    await page.goto('/en/');
+    const titles = page.locator('#hero-title, #legacy-title, #expertise-title, #ethics-title, #team-title, #clients-title, #contact-title');
+    await expect(titles).toHaveCount(7);
+
+    const trackingRatios = await titles.evaluateAll((elements) =>
+      elements.map((element) => {
+        const style = getComputedStyle(element);
+        return Number.parseFloat(style.letterSpacing) / Number.parseFloat(style.fontSize);
+      }),
+    );
+
+    expect(trackingRatios.every((ratio) => ratio >= -0.04)).toBe(true);
+  });
+
+  test('uses a restrained and consistent section-title scale on desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/en/');
+
+    const titles = page.locator('#legacy-title, #expertise-title, #ethics-title, #team-title, #clients-title, #contact-title');
+    const fontSizes = await titles.evaluateAll((elements) =>
+      elements.map((element) => Number.parseFloat(getComputedStyle(element).fontSize)),
+    );
+
+    expect(fontSizes).toHaveLength(6);
+    expect(fontSizes.every((size) => size === 60)).toBe(true);
+  });
+
+  test('keeps the hero title at 90 pixels on desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/en/');
+
+    const heroTitle = page.locator('#hero-title');
+    const desktopFontSize = await heroTitle.evaluate((element) =>
+      Number.parseFloat(getComputedStyle(element).fontSize),
+    );
+
+    expect(desktopFontSize).toBe(90);
+
+    await page.setViewportSize({ width: 1024, height: 900 });
+    expect(await heroTitle.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize))).toBe(90);
+
+    await page.setViewportSize({ width: 1023, height: 900 });
+    const tabletFontSize = await heroTitle.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+    expect(tabletFontSize).toBeGreaterThan(90);
+    expect(tabletFontSize).toBeLessThan(93);
+  });
+
+  test('uses a brighter hero treatment in light mode and a dark scrim in dark mode', async ({ page }) => {
+    const readTreatment = async () =>
+      page.locator('#hero').evaluate((hero) => {
+        const overlay = hero.querySelector('.hero__overlay');
+        const background = overlay ? getComputedStyle(overlay).backgroundImage : '';
+        const color = getComputedStyle(hero).color;
+        const firstRgb = background.match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)/);
+        const luminance = firstRgb
+          ? (0.2126 * Number(firstRgb[1]) + 0.7152 * Number(firstRgb[2]) + 0.0722 * Number(firstRgb[3]))
+          : 0;
+        return { background, color, luminance };
+      });
+
+    await page.addInitScript(() => localStorage.setItem('wp-theme', 'light'));
+    await page.goto('/en/');
+    const light = await readTreatment();
+
+    await page.getByRole('button', { name: 'Use dark theme' }).click();
+    const dark = await readTreatment();
+
+    expect(light.luminance).toBeGreaterThan(dark.luminance);
+    expect(light.color).not.toBe(dark.color);
+    expect(light.background).not.toBe(dark.background);
+  });
 });
 
 test.describe('clients portfolio', () => {

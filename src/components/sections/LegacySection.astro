@@ -13,16 +13,17 @@ const eyebrow = locale === 'id' ? 'Warisan kami' : 'Our legacy';
 const foundingYear = '1988';
 ---
 
-<section id="legacy" class="legacy" aria-labelledby="legacy-title">
-  <div class="legacy__grid">
+<section id="legacy" class="legacy" aria-labelledby="legacy-title" data-section-reveal>
+  <div class="legacy__grid" data-section-content>
     <div class="legacy__content">
       <p class="eyebrow">{eyebrow}</p>
       <h2 id="legacy-title">{content.headline}</h2>
       <div class="legacy__copy">
         {content.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
       </div>
-      <p class="legacy__year" aria-label={`${locale === 'id' ? 'Didirikan' : 'Founded'} ${foundingYear}`}>
-        <span aria-hidden="true">{foundingYear}</span>
+      <p class="legacy__year">
+        <span class="visually-hidden">{locale === 'id' ? 'Didirikan' : 'Founded'} </span>
+        <span>{foundingYear}</span>
       </p>
     </div>
     <div class="legacy__visual">
@@ -67,7 +68,7 @@ const foundingYear = '1988';
     margin: 0;
     font-size: clamp(2.8rem, 6vw, 6rem);
     line-height: 0.96;
-    letter-spacing: -0.06em;
+    letter-spacing: var(--tracking-display);
   }
 
   .legacy__copy {
@@ -88,6 +89,18 @@ const foundingYear = '1988';
     font-size: clamp(3rem, 7vw, 6.5rem);
     font-style: italic;
     line-height: 1;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .legacy__visual {

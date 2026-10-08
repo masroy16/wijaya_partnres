@@ -14,6 +14,9 @@ test.describe('localized site shell', () => {
       await page.goto(path);
 
       await expect(page.locator('html')).toHaveAttribute('lang', locale);
+      if ((page.viewportSize()?.width ?? 0) < 1024) {
+        await page.getByRole('button', { name: locale === 'id' ? 'Buka menu' : 'Open menu' }).click();
+      }
       const navigation = page.getByRole('navigation', { name: navName });
       await expect(navigation).toBeVisible();
       await expect(navigation.locator('a[href="#legacy"]')).toBeVisible();
@@ -22,7 +25,8 @@ test.describe('localized site shell', () => {
     });
   }
 
-  test('moves keyboard focus to main content through the skip link', async ({ page }) => {
+  test('moves keyboard focus to main content through the skip link', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'Headless WebKit follows the macOS preference that omits links from Tab navigation.');
     await page.goto('/id/');
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'Lewati ke konten utama' })).toBeFocused();
@@ -35,6 +39,54 @@ test.describe('localized site shell', () => {
     await page.getByRole('link', { name: 'English' }).click();
     await expect(page).toHaveURL(/\/en\/$/);
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  });
+
+  test('uses the compact brand mark in navigation and the complete lockup in branded content', async ({ page }) => {
+    await page.goto('/id/');
+
+    const headerBrand = page.getByRole('link', { name: 'Wijaya And Partners — Beranda' });
+    const compactMark = headerBrand.locator('[data-brand-mark]');
+    await expect(compactMark).toBeVisible();
+    await expect(compactMark).toHaveAttribute('alt', '');
+
+    const heroLockup = page.locator('#hero [data-brand-lockup]');
+    const footerLockup = page.locator('footer [data-brand-lockup]');
+    await expect(heroLockup).toBeVisible();
+    await expect(heroLockup).toHaveAttribute('alt', 'Wijaya & Partners');
+    await expect(footerLockup).toBeVisible();
+    await expect(footerLockup).toHaveAttribute('alt', 'Wijaya & Partners');
+
+    const imageState = [];
+    for (const image of [compactMark, heroLockup, footerLockup]) {
+      await image.scrollIntoViewIfNeeded();
+      await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0)).toBe(true);
+      imageState.push(
+        await image.evaluate((element: HTMLImageElement) => ({
+          complete: element.complete,
+          naturalWidth: element.naturalWidth,
+          naturalHeight: element.naturalHeight,
+        })),
+      );
+    }
+
+    expect(imageState.every(({ complete, naturalWidth, naturalHeight }) => complete && naturalWidth > 0 && naturalHeight > 0)).toBe(
+      true,
+    );
+  });
+
+  test('adds contrast to the complete logo text only in dark mode', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('wp-theme', 'light'));
+    await page.goto('/id/');
+
+    const contrastLayers = page.locator('[data-brand-lockup-contrast]');
+    await expect(contrastLayers).toHaveCount(2);
+    for (const layer of await contrastLayers.all()) await expect(layer).toBeHidden();
+
+    await page.getByRole('button', { name: 'Gunakan tema gelap' }).click();
+    for (const layer of await contrastLayers.all()) {
+      await expect(layer).toBeVisible();
+      expect(await layer.evaluate((element) => getComputedStyle(element).filter)).not.toBe('none');
+    }
   });
 
   test('opens and closes the mobile menu with an exposed state', async ({ page }) => {

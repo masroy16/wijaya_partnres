@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import firmLogo from '../assets/brand/wijaya-partners-logo.png';
 import type { HomeContent, Locale } from '../i18n/types';
 
 interface Props {
@@ -14,7 +16,28 @@ const year = new Date().getFullYear();
 <footer class="site-footer">
   <div class="site-footer__inner">
     <div>
-      <p class="site-footer__brand">Wijaya &amp; Partners</p>
+      <span class="site-footer__brand">
+        <Image
+          src={firmLogo}
+          alt="Wijaya & Partners"
+          width={200}
+          height={204}
+          format="webp"
+          quality={90}
+          data-brand-lockup
+        />
+        <Image
+          class="site-footer__brand-contrast"
+          src={firmLogo}
+          alt=""
+          aria-hidden="true"
+          width={200}
+          height={204}
+          format="webp"
+          quality={90}
+          data-brand-lockup-contrast
+        />
+      </span>
       <p class="site-footer__preview">{content.previewLabel}</p>
     </div>
     <nav aria-label={locale === 'id' ? 'Navigasi footer' : 'Footer navigation'}>
@@ -45,9 +68,31 @@ const year = new Date().getFullYear();
   }
 
   .site-footer__brand {
-    margin: 0;
-    font-family: var(--font-serif);
-    font-size: 1.35rem;
+    width: clamp(8rem, 12vw, 10rem);
+    display: grid;
+    filter: drop-shadow(0 0.35rem 0.9rem rgb(0 0 0 / 10%));
+  }
+
+  .site-footer__brand :global(img) {
+    width: 100%;
+    height: auto;
+    grid-area: 1 / 1;
+    object-fit: contain;
+  }
+
+  .site-footer__brand-contrast {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  :global(:root[data-theme='dark']) .site-footer__brand {
+    filter: drop-shadow(0 0.35rem 0.9rem rgb(0 0 0 / 35%));
+  }
+
+  :global(:root[data-theme='dark']) .site-footer__brand-contrast {
+    visibility: visible;
+    clip-path: inset(73% 0 0);
+    filter: brightness(0) invert(1) drop-shadow(0 0 0.08rem rgb(0 0 0 / 85%));
   }
 
   .site-footer__preview {

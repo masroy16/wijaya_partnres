@@ -12,15 +12,15 @@ const { locale, content, members } = Astro.props;
 const eyebrow = locale === 'id' ? 'Orang-orang kami' : 'Our people';
 ---
 
-<section id="team" class="team" aria-labelledby="team-title">
-  <div class="team__heading">
+<section id="team" class="team" aria-labelledby="team-title" data-section-reveal>
+  <div class="team__heading" data-section-content>
     <div>
       <p class="eyebrow">{eyebrow}</p>
       <h2 id="team-title">{content.headline}</h2>
     </div>
     <p>{content.introduction}</p>
   </div>
-  <div class="team__grid">
+  <div class="team__grid" data-section-content>
     {members.map((member) => <TeamCard member={member} />)}
   </div>
 </section>
@@ -58,7 +58,7 @@ const eyebrow = locale === 'id' ? 'Orang-orang kami' : 'Our people';
     margin: 0;
     font-size: clamp(2.8rem, 6vw, 6rem);
     line-height: 0.96;
-    letter-spacing: -0.06em;
+    letter-spacing: var(--tracking-display);
   }
 
   .team__heading > p {

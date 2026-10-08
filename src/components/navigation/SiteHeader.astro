@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import firmMark from '../../assets/brand/wijaya-partners-mark.png';
 import type { HomeContent, Locale, SectionId } from '../../i18n/types';
 import LocaleSwitcher from './LocaleSwitcher.astro';
 import ThemeToggle from './ThemeToggle.astro';
@@ -29,7 +31,16 @@ const links: ReadonlyArray<{ id: SectionId; label: string }> = [
 <header class="site-header" data-site-header>
   <div class="site-header__bar">
     <a class="wordmark" href={`/${locale}/#hero`} aria-label={brandLabel}>
-      <span class="wordmark__mark" aria-hidden="true">W<span>P</span></span>
+      <Image
+        class="wordmark__mark"
+        src={firmMark}
+        alt=""
+        width={64}
+        height={63}
+        format="webp"
+        quality={88}
+        data-brand-mark
+      />
       <span class="wordmark__name">Wijaya &amp; Partners</span>
     </a>
 
@@ -74,7 +85,9 @@ const links: ReadonlyArray<{ id: SectionId; label: string }> = [
   }
 
   trigger?.addEventListener('click', () => {
-    setMenuState(trigger.getAttribute('aria-expanded') !== 'true');
+    const open = trigger.getAttribute('aria-expanded') !== 'true';
+    setMenuState(open);
+    if (open) navigation?.querySelector<HTMLAnchorElement>('a')?.focus();
   });
 
   navigation?.addEventListener('click', (event) => {
@@ -83,6 +96,12 @@ const links: ReadonlyArray<{ id: SectionId; label: string }> = [
 
   window.addEventListener('resize', () => {
     if (window.matchMedia('(min-width: 64rem)').matches) setMenuState(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || trigger?.getAttribute('aria-expanded') !== 'true') return;
+    setMenuState(false);
+    trigger.focus();
   });
 </script>
 
@@ -120,28 +139,10 @@ const links: ReadonlyArray<{ id: SectionId; label: string }> = [
   }
 
   .wordmark__mark {
-    width: 2.4rem;
-    height: 2.4rem;
-    display: grid;
-    place-items: center;
-    border: 1px solid currentColor;
-    color: var(--color-ink);
-    font-family: var(--font-serif);
-    font-size: 1rem;
-    letter-spacing: -0.08em;
-  }
-
-  .wordmark__mark > span,
-  .wordmark__mark::first-letter {
-    color: var(--color-burgundy-700);
-  }
-
-  .wordmark__mark > span {
-    margin-left: -0.12em;
-  }
-
-  .wordmark__mark > span {
-    display: inline-block;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: 0 0 auto;
+    object-fit: contain;
   }
 
   .wordmark__name {

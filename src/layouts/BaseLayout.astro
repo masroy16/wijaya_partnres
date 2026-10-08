@@ -92,5 +92,24 @@ const structuredData = {
     <slot />
     <SiteFooter locale={locale} content={content.footer} />
     <FloatingWhatsApp locale={locale} />
+    <script>
+      const sections = [...document.querySelectorAll<HTMLElement>('[data-section-reveal]')];
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduceMotion || !('IntersectionObserver' in window)) {
+        sections.forEach((section) => { section.dataset.sectionVisible = 'true'; });
+      } else if (sections.length) {
+        document.documentElement.classList.add('reveal-ready');
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              (entry.target as HTMLElement).dataset.sectionVisible = String(entry.isIntersecting);
+            });
+          },
+          { rootMargin: '-8% 0px -10%', threshold: 0.12 },
+        );
+        sections.forEach((section) => observer.observe(section));
+      }
+    </script>
   </body>
 </html>

@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import firmLogo from '../../assets/brand/firm-logo-source.jpeg';
+import firmLogo from '../../assets/brand/wijaya-partners-logo.png';
 import heroImage from '../../assets/sections/hero-gedung-merdeka.jpeg';
 import type { HomeContent, Locale } from '../../i18n/types';
 
@@ -13,7 +13,7 @@ const { locale, content } = Astro.props;
 const eyebrow = locale === 'id' ? 'Kantor hukum · Bandung · Sejak 1988' : 'Law firm · Bandung · Since 1988';
 ---
 
-<section id="hero" class="hero" aria-labelledby="hero-title">
+<section id="hero" class="hero" aria-labelledby="hero-title" data-section-reveal>
   <Image
     class="hero__image"
     src={heroImage}
@@ -27,9 +27,30 @@ const eyebrow = locale === 'id' ? 'Kantor hukum · Bandung · Sejak 1988' : 'Law
     data-narrative-image
   />
   <div class="hero__overlay" aria-hidden="true"></div>
-  <div class="hero__content">
+  <div class="hero__content" data-section-content>
     <div class="hero__brand">
-      <Image src={firmLogo} alt="Wijaya & Partners" width={108} height={110} format="webp" quality={82} />
+      <span class="brand-lockup">
+        <Image
+          src={firmLogo}
+          alt="Wijaya & Partners"
+          width={160}
+          height={163}
+          format="webp"
+          quality={90}
+          data-brand-lockup
+        />
+        <Image
+          class="brand-lockup__contrast"
+          src={firmLogo}
+          alt=""
+          aria-hidden="true"
+          width={160}
+          height={163}
+          format="webp"
+          quality={90}
+          data-brand-lockup-contrast
+        />
+      </span>
       <p>{eyebrow}</p>
     </div>
     <h1 id="hero-title">Absolute Loyalty. <span>Strategic Action.</span></h1>
@@ -45,8 +66,8 @@ const eyebrow = locale === 'id' ? 'Kantor hukum · Bandung · Sejak 1988' : 'Law
     place-items: center;
     overflow: hidden;
     isolation: isolate;
-    background: #161414;
-    color: #fff;
+    background: #e9e3db;
+    color: #171414;
   }
 
   .hero__image,
@@ -66,8 +87,8 @@ const eyebrow = locale === 'id' ? 'Kantor hukum · Bandung · Sejak 1988' : 'Law
   .hero__overlay {
     z-index: -1;
     background:
-      linear-gradient(90deg, rgb(10 9 9 / 84%) 0%, rgb(10 9 9 / 68%) 52%, rgb(10 9 9 / 58%) 100%),
-      linear-gradient(0deg, rgb(10 9 9 / 64%) 0%, transparent 42%);
+      linear-gradient(90deg, rgb(247 244 239 / 88%) 0%, rgb(247 244 239 / 70%) 52%, rgb(247 244 239 / 38%) 100%),
+      linear-gradient(0deg, rgb(247 244 239 / 55%) 0%, transparent 42%);
   }
 
   .hero__content {
@@ -81,16 +102,28 @@ const eyebrow = locale === 'id' ? 'Kantor hukum · Bandung · Sejak 1988' : 'Law
     gap: 1rem;
   }
 
-  .hero__brand :global(img) {
-    width: 4.5rem;
-    height: 4.5rem;
-    border-radius: 0.55rem;
-    object-fit: cover;
+  .brand-lockup {
+    width: clamp(6rem, 9vw, 8.5rem);
+    display: grid;
+    flex: 0 0 auto;
+    filter: drop-shadow(0 0.4rem 0.9rem rgb(0 0 0 / 12%));
+  }
+
+  .brand-lockup :global(img) {
+    width: 100%;
+    height: auto;
+    grid-area: 1 / 1;
+    object-fit: contain;
+  }
+
+  .brand-lockup__contrast {
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .hero__brand p {
     margin: 0;
-    color: rgb(255 255 255 / 76%);
+    color: rgb(23 20 20 / 72%);
     font-size: 0.76rem;
     font-weight: 750;
     letter-spacing: 0.14em;
@@ -103,19 +136,54 @@ const eyebrow = locale === 'id' ? 'Kantor hukum · Bandung · Sejak 1988' : 'Law
     font-size: clamp(3.5rem, 9vw, 8.5rem);
     font-weight: 760;
     line-height: 0.88;
-    letter-spacing: -0.07em;
+    letter-spacing: var(--tracking-display);
   }
 
   h1 span {
-    color: #df5c62;
+    color: var(--color-burgundy-700);
   }
 
   .hero__body {
     max-width: 48rem;
     margin: 2rem 0 0;
-    color: rgb(255 255 255 / 84%);
+    color: rgb(23 20 20 / 78%);
     font-size: clamp(1.05rem, 2.4vw, 1.35rem);
     line-height: 1.65;
+  }
+
+  :global(:root[data-theme='dark']) .hero {
+    background: #161414;
+    color: #fff;
+  }
+
+  :global(:root[data-theme='dark']) .hero__overlay {
+    background:
+      linear-gradient(90deg, rgb(8 8 9 / 90%) 0%, rgb(8 8 9 / 76%) 52%, rgb(8 8 9 / 64%) 100%),
+      linear-gradient(0deg, rgb(8 8 9 / 70%) 0%, transparent 42%);
+  }
+
+  :global(:root[data-theme='dark']) .hero__brand p {
+    color: rgb(255 255 255 / 76%);
+  }
+
+  :global(:root[data-theme='dark']) .brand-lockup {
+    filter: drop-shadow(0 0.35rem 0.9rem rgb(0 0 0 / 45%));
+  }
+
+  :global(:root[data-theme='dark']) .brand-lockup__contrast {
+    visibility: visible;
+    clip-path: inset(73% 0 0);
+    filter: brightness(0) invert(1) drop-shadow(0 0 0.08rem rgb(0 0 0 / 85%));
+  }
+
+  :global(:root[data-theme='dark']) .hero__body {
+    color: rgb(255 255 255 / 84%);
+  }
+
+  @media (min-width: 64rem) {
+    h1 {
+      font-size: 5.625rem;
+    }
   }
 
   @media (max-width: 40rem) {

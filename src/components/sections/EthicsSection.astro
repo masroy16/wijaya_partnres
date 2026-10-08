@@ -12,7 +12,7 @@ const { locale, content } = Astro.props;
 const eyebrow = locale === 'id' ? 'Cara kami bekerja' : 'How we work';
 ---
 
-<section id="ethics" class="ethics" aria-labelledby="ethics-title">
+<section id="ethics" class="ethics" aria-labelledby="ethics-title" data-section-reveal>
   <Image
     class="ethics__image"
     src={ethicsImage}
@@ -23,7 +23,7 @@ const eyebrow = locale === 'id' ? 'Cara kami bekerja' : 'How we work';
     data-narrative-image
   />
   <div class="ethics__wash" aria-hidden="true"></div>
-  <div class="ethics__content">
+  <div class="ethics__content" data-section-content>
     <div>
       <p class="eyebrow">{eyebrow}</p>
       <h2 id="ethics-title">{content.headline}</h2>
@@ -83,7 +83,7 @@ const eyebrow = locale === 'id' ? 'Cara kami bekerja' : 'How we work';
     margin: 0;
     font-size: clamp(2.8rem, 6vw, 6rem);
     line-height: 0.96;
-    letter-spacing: -0.06em;
+    letter-spacing: var(--tracking-display);
   }
 
   .ethics__intro {

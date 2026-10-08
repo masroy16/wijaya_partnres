@@ -113,4 +113,15 @@ const profileLabel = member.locale === 'id' ? `Lihat profil ${member.name}` : `V
     color: var(--color-burgundy-700);
     font-size: 1.3rem;
   }
+
+  @media (min-width: 56.0625rem) {
+    .team-card__portrait {
+      aspect-ratio: 16 / 10;
+    }
+
+    .team-card__details {
+      min-height: 10rem;
+      padding: clamp(1.2rem, 2vw, 1.5rem);
+    }
+  }
 </style>

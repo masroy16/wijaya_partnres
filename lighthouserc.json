@@ -1,12 +1,19 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "npm run preview -- --host 127.0.0.1",
+      "startServerCommand": "npm run preview -- --ignore-lock --host 127.0.0.1",
       "startServerReadyPattern": "Local",
       "url": ["http://127.0.0.1:4321/id/"],
       "numberOfRuns": 3,
       "settings": {
-        "preset": "desktop"
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 390,
+          "height": 844,
+          "deviceScaleFactor": 2,
+          "disabled": false
+        }
       }
     },
     "assert": {
